@@ -9,6 +9,7 @@ import org.prashant.blog.blogapplicationapi.entities.RefreshToken;
 import org.prashant.blog.blogapplicationapi.entities.Role;
 import org.prashant.blog.blogapplicationapi.entities.User;
 import org.prashant.blog.blogapplicationapi.exceptions.ResourceNotFound;
+import org.prashant.blog.blogapplicationapi.repository.RoleRepository;
 import org.prashant.blog.blogapplicationapi.repository.UserRepository;
 import org.prashant.blog.blogapplicationapi.utils.AppConstant;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -27,18 +28,21 @@ public class AuthService {
     private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
     private final AuthenticationManager authenticationManager;
+    private final RoleRepository roleRepository;
 
     public AuthResponse register(RegisterRequest registerRequest){
-        var role = Role.builder().id(AppConstant.NORMAL_USER).name("NORMAL").build();
+        Role role = this.roleRepository.findById(AppConstant.NORMAL_USER).orElseThrow(()->new ResourceNotFound("Role", "role_id", "501"));
         Set<Role> roles = new HashSet<>();
         roles.add(role);
 
         var user = User.builder()
                 .userName(registerRequest.getName())
+                .userEmail(registerRequest.getEmail())
                 .userPassword(passwordEncoder.encode(registerRequest.getPassword()))
                 .roles(roles)
                 .build();
         User savedUser = userRepository.save(user);
+        System.out.println(savedUser);//debug
         var accessToken = jwtService.generateToken(savedUser);
         var refreshToken = refreshTokenService.createRefreshToken(savedUser.getUserEmail());
         return AuthResponse.builder()

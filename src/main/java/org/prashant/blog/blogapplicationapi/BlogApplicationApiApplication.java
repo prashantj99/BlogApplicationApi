@@ -31,9 +31,9 @@ public class BlogApplicationApiApplication implements CommandLineRunner {
         try {
             Role admin_role=new Role(), user_role=new Role();
             admin_role.setId(AppConstant.ADMIN_USER);
-            admin_role.setName("ROLE_ADMIN");
+            admin_role.setName("ADMIN");
             user_role.setId(AppConstant.NORMAL_USER);
-            user_role.setName("ROLE_NORMAL");
+            user_role.setName("NORMAL");
             this.roleRepository.saveAll(List.of(admin_role, user_role));
         }catch (Exception e) {
             e.printStackTrace();
