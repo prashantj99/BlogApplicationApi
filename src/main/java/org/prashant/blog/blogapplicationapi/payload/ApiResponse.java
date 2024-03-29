@@ -1,4 +1,4 @@
-package org.prashant.blog.blogapplicationapi.entities;
+package org.prashant.blog.blogapplicationapi.payload;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

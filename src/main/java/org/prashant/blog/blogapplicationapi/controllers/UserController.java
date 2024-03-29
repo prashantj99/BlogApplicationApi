@@ -1,13 +1,14 @@
 package org.prashant.blog.blogapplicationapi.controllers;
 
-import org.prashant.blog.blogapplicationapi.entities.ApiResponse;
-import org.prashant.blog.blogapplicationapi.entities.UserResponse;
+import org.prashant.blog.blogapplicationapi.payload.ApiResponse;
+import org.prashant.blog.blogapplicationapi.payload.UserPageResponse;
 import org.prashant.blog.blogapplicationapi.payload.UserDto;
 import org.prashant.blog.blogapplicationapi.service.UserService;
 import org.prashant.blog.blogapplicationapi.utils.AppConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,25 +19,28 @@ public class UserController {
     private UserService userService;
 
     @GetMapping("/")
-    public ResponseEntity<UserResponse> getUsers(
+    public ResponseEntity<UserPageResponse> getUsers(
                                                  @RequestParam(value ="pageNumber", defaultValue = AppConstant.PAGE_NUMBER, required = false) Integer pageNumber,
                                                  @RequestParam(value ="pageSize", defaultValue = AppConstant.PAGE_SIZE, required = false) Integer pageSize,
                                                  @RequestParam(value = "sortBy", defaultValue = AppConstant.DEFAULT_USER_SORT_FIELD, required = false) String sortBy,
                                                  @RequestParam(value = "sortDir", defaultValue = AppConstant.DEFAULT_SORT_CRITERIA, required = false) String sortDir
 
     ){
-        UserResponse userResponse = this.userService.getUsers(pageNumber, pageSize, sortBy, sortDir);
-        return new ResponseEntity<>(userResponse, HttpStatus.OK);
+        UserPageResponse userPageResponse = this.userService.getUsers(pageNumber, pageSize, sortBy, sortDir);
+        return new ResponseEntity<>(userPageResponse, HttpStatus.OK);
     }
 
     @PostMapping("/")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<UserDto> createUser(@RequestBody UserDto userDto){
         UserDto created_user = this.userService.createUser(userDto);
         return new ResponseEntity<>(created_user, HttpStatus.CREATED);
     }
 
     @DeleteMapping("/{userId}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<ApiResponse> deleteUser(@PathVariable Long userId){
+        System.out.println("entering....");
         this.userService.deleteUser(userId);
         return  new ResponseEntity<>(new ApiResponse("user deleted successfully", true), HttpStatus.OK);
     }

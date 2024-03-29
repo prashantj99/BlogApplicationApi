@@ -1,12 +1,19 @@
 package org.prashant.blog.blogapplicationapi.entities;
 
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.Date;
 import java.util.List;
 
-@Data
+@Setter
+@Getter
+@NoArgsConstructor
 @Entity
 @Table(name = "post")
 public class Post {
@@ -16,9 +23,11 @@ public class Post {
     private Long postId;
 
     @Column(nullable = false, name = "POST_TITLE")
+    @NotBlank(message = "post title cannot be empty or null!!!")
     private String postTitle;
 
     @Column(nullable = false, length = 1000, name = "POST_CONTENT")
+    @NotBlank(message = "post content cannot be empty or null!!!")
     private String postContent;
 
     @Column(name = "IMAGE_URL")
@@ -34,6 +43,7 @@ public class Post {
 
     @ManyToOne
     @JoinColumn(name = "CATEGORY_ID")
+    @JsonBackReference
     private Category category;
 
     @ManyToOne

@@ -1,6 +1,9 @@
 package org.prashant.blog.blogapplicationapi.entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -14,8 +17,11 @@ import java.util.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "user")
 @Builder
+@Table(name = "user")
+//@JsonIdentityInfo(
+//        generator = ObjectIdGenerators.PropertyGenerator.class,
+//        property = "userId")
 public class User implements UserDetails{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,7 +29,7 @@ public class User implements UserDetails{
     private Long userId;
 
     @Column(nullable = false, name = "USER_NAME")
-    private String userName;
+    private String name;
 
     @Column(nullable = false, unique = true, name = "USER_EMAIL")
     private String userEmail;
@@ -37,7 +43,7 @@ public class User implements UserDetails{
     @Column(name = "IMG_URL")
     private String imgUrl;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Post> posts;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)

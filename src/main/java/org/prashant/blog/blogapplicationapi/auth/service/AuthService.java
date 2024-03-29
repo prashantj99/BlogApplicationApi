@@ -36,7 +36,7 @@ public class AuthService {
         roles.add(role);
 
         var user = User.builder()
-                .userName(registerRequest.getName())
+                .name(registerRequest.getName())
                 .userEmail(registerRequest.getEmail())
                 .userPassword(passwordEncoder.encode(registerRequest.getPassword()))
                 .roles(roles)
