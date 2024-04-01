@@ -1,16 +1,14 @@
 package org.prashant.blog.blogapplicationapi.service;
 
-import org.prashant.blog.blogapplicationapi.payload.CreatePostRequest;
-import org.prashant.blog.blogapplicationapi.payload.PostDto;
-import org.prashant.blog.blogapplicationapi.payload.PostResponse;
-import org.prashant.blog.blogapplicationapi.payload.PostUpdateRequest;
+import org.prashant.blog.blogapplicationapi.payload.*;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface PostService {
-    PostDto createPost(CreatePostRequest createPostRequest);
-    PostDto updatePost(PostUpdateRequest postUpdateRequest);
-    void deletePost(Long postId);
+    PostDto createPost(CreatePostRequest createPostRequest) throws IOException;
+    PostDto updatePost(PostUpdateRequest postUpdateRequest) throws IOException;
+    void deletePost(DeletePostRequest deletePostRequest) throws IOException;
     PostResponse getPosts(Integer pageNumber, Integer pageSize, String sortBy, String sortDir);
     PostDto getPostById(Long postId);
     PostResponse getPostsByCategory(Long categoryId, Integer pageNumber, Integer pageSize, String sortBy, String sortDir);
@@ -19,4 +17,5 @@ public interface PostService {
     PostResponse getPostsByTag(String tagName, Integer pageNumber, Integer pageSize, String sortBy, String sortDir);
 
     PostResponse searchPosts(String keyword, Integer pageNumber, Integer pageSize, String sortBy, String sortDir);
+
 }

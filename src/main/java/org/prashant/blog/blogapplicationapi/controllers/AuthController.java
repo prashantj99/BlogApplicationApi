@@ -24,11 +24,11 @@ public class AuthController {
     private final RefreshTokenService refreshTokenService;
     private final JwtService jwtService;
 
-    @PostMapping("/register")
+    @PostMapping("/signup")
     public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest registerRequest){
         return ResponseEntity.ok(authService.register(registerRequest));
     }
-    @PostMapping("/login")
+    @PostMapping("/signin")
     public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest loginRequest){
         return ResponseEntity.ok(authService.login(loginRequest));
     }

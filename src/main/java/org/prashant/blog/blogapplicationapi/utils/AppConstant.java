@@ -9,4 +9,6 @@ public class AppConstant {
     public static final String DEFAULT_SORT_CRITERIA="asc";
     public static final Long NORMAL_USER = 501L;
     public static final Long ADMIN_USER = 502L;
+    public static final String DEFAULT_TAG_SORT_FIELD = "tagName";
+    public static final String DEFAULT_COMMENT_SORT_FIELD = "lastUpdated";
 }

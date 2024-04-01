@@ -1,5 +1,6 @@
 package org.prashant.blog.blogapplicationapi;
 
+
 import org.modelmapper.ModelMapper;
 import org.prashant.blog.blogapplicationapi.entities.Role;
 import org.prashant.blog.blogapplicationapi.repository.RoleRepository;
@@ -40,3 +41,4 @@ public class BlogApplicationApiApplication implements CommandLineRunner {
         }
     }
 }
+

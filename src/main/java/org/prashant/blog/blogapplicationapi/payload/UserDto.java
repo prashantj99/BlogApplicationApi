@@ -21,6 +21,11 @@ public class UserDto {
     private String imgUrl;
     @JsonIgnore
     private List<PostDto> posts;
+    @JsonIgnore
     private List<CommentDto> comments;
     private Set<Role> roles;
+    @JsonIgnore
+    public String getUserPassword(){
+        return this.userPassword;
+    }
 }

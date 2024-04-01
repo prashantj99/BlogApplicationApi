@@ -2,6 +2,7 @@ package org.prashant.blog.blogapplicationapi.auth.service;
 
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.prashant.blog.blogapplicationapi.auth.utils.AuthResponse;
 import org.prashant.blog.blogapplicationapi.auth.utils.LoginRequest;
 import org.prashant.blog.blogapplicationapi.auth.utils.RegisterRequest;
@@ -9,6 +10,7 @@ import org.prashant.blog.blogapplicationapi.entities.RefreshToken;
 import org.prashant.blog.blogapplicationapi.entities.Role;
 import org.prashant.blog.blogapplicationapi.entities.User;
 import org.prashant.blog.blogapplicationapi.exceptions.ResourceNotFound;
+import org.prashant.blog.blogapplicationapi.payload.UserDto;
 import org.prashant.blog.blogapplicationapi.repository.RoleRepository;
 import org.prashant.blog.blogapplicationapi.repository.UserRepository;
 import org.prashant.blog.blogapplicationapi.utils.AppConstant;
@@ -29,6 +31,7 @@ public class AuthService {
     private final RefreshTokenService refreshTokenService;
     private final AuthenticationManager authenticationManager;
     private final RoleRepository roleRepository;
+    private final ModelMapper modelMapper;
 
     public AuthResponse register(RegisterRequest registerRequest){
         Role role = this.roleRepository.findById(AppConstant.NORMAL_USER).orElseThrow(()->new ResourceNotFound("Role", "role_id", "501"));
@@ -61,6 +64,7 @@ public class AuthService {
         var refreshToken = this.refreshTokenService.createRefreshToken(user.getUserEmail());
         return AuthResponse.builder()
                 .accessToken(accessToken)
+                .userDto(modelMapper.map(user, UserDto.class))
                 .refreshToken(refreshToken.getRefreshToken())
                 .build();
     }

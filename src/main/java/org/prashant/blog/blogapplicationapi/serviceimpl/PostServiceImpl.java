@@ -12,13 +12,17 @@ import org.prashant.blog.blogapplicationapi.repository.CategoryRepository;
 import org.prashant.blog.blogapplicationapi.repository.PostRepository;
 import org.prashant.blog.blogapplicationapi.repository.TagRepository;
 import org.prashant.blog.blogapplicationapi.repository.UserRepository;
+import org.prashant.blog.blogapplicationapi.service.FileService;
 import org.prashant.blog.blogapplicationapi.service.PostService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
@@ -31,9 +35,16 @@ public class PostServiceImpl implements PostService {
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
     private final TagRepository tagRepository;
+    private final FileService fileService;
+
+    @Value("${project.image}")
+    private String path;
+
+    @Value("${project.baseurl}")
+    private String baseurl;
 
     @Override
-    public PostDto createPost(CreatePostRequest createPostRequest) {
+    public PostDto createPost(CreatePostRequest createPostRequest) throws IOException {
         Category category = this.categoryRepository.findById(createPostRequest.categoryId())
                 .orElseThrow(()->new ResourceNotFound("Category", "categoryId", createPostRequest.categoryId().toString()));
         User user = this.userRepository.findById(createPostRequest.userId())
@@ -48,6 +59,13 @@ public class PostServiceImpl implements PostService {
         post.setCategory(category);
         //add tags pending
 
+        //save post image
+        MultipartFile post_img = createPostRequest.postImage();
+        if(!post_img.isEmpty()){
+            String uploadedFileName = fileService.uploadFile(path, post_img);
+            post.setImageName(uploadedFileName);
+        }
+
         Post saved_post = this.postRepository.save(post);
         System.out.println("db post : "+saved_post);
 
@@ -55,30 +73,42 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public PostDto updatePost(PostUpdateRequest postUpdateRequest) {
+    public PostDto updatePost(PostUpdateRequest postUpdateRequest) throws IOException {
         Post post = this.postRepository.findById(postUpdateRequest.postId())
                 .orElseThrow(()-> new ResourceNotFound("Post", "postId", postUpdateRequest.postId().toString()));
+        User user = userRepository.findById(postUpdateRequest.userId())
+                .orElseThrow(() -> new ResourceNotFound("User", "userId", postUpdateRequest.userId().toString()));
+
+        if (!post.getUser().getUserId().equals(user.getUserId())) {
+            throw new RuntimeException("You are not authorized to update this post.");
+        }
+
         post.setPostTitle(postUpdateRequest.postTitle());
         post.setPostContent(postUpdateRequest.postContent());
-        post.setLastUpdateDate(postUpdateRequest.lastUpdateDate());
-        //update tags
-//        List<Tag> existing_tags = post.getTags().stream().map( tag -> {
-//            tag.getPosts().remove(post);
-//            return tag;
-//        }).toList();
-//
-//        for(TagDto new_tags : postUpdateRequest.tags()){
-//            Tag tag =
-//        }
-
+        post.setLastUpdateDate(new Date());
+        MultipartFile post_img = postUpdateRequest.postImage();
+        if(post_img != null && !post_img.isEmpty()){
+            fileService.deleteResource(path, post.getImageName());
+            String updated_post_img = fileService.uploadFile(path, post_img);
+            post.setImageName(updated_post_img);
+        }
         Post updated_post = this.postRepository.save(post);
         return this.modelMapper.map(updated_post, PostDto.class);
     }
 
     @Override
-    public void deletePost(Long postId) {
-        Post post = this.postRepository.findById(postId)
-                .orElseThrow(()-> new ResourceNotFound("Post", "postId", postId.toString()));
+    public void deletePost(DeletePostRequest deletePostRequest) throws IOException {
+        Post post = this.postRepository.findById(deletePostRequest.postId())
+                .orElseThrow(()-> new ResourceNotFound("Post", "postId", deletePostRequest.postId().toString()));
+
+        User user = userRepository.findById(deletePostRequest.userId())
+                .orElseThrow(() -> new ResourceNotFound("User", "userId", deletePostRequest.userId().toString()));
+
+        if (!post.getUser().getUserId().equals(user.getUserId())) {
+            throw new RuntimeException("You are not authorized to update this post.");
+        }
+
+        this.fileService.deleteResource(path, post.getImageName());
         this.postRepository.delete(post);
     }
 

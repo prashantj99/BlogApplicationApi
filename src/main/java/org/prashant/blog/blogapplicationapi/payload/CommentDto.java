@@ -1,5 +1,6 @@
 package org.prashant.blog.blogapplicationapi.payload;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import java.util.Date;

@@ -1,9 +1,6 @@
 package org.prashant.blog.blogapplicationapi.payload;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.*;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,5 +22,6 @@ public class PostDto {
     private CategoryDto category;
     private UserDto user;
     private List<TagDto> tags;
+    @JsonIgnore
     private List<CommentDto> comments;
 }
