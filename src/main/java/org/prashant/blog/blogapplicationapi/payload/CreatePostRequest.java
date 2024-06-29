@@ -9,12 +9,19 @@ import java.util.List;
 public record CreatePostRequest(String postTitle,
                                 @NotBlank(message = "field cannot be empty")
                                 String postContent,
-
-                                Long userId,
+                                String postDescription,
                                 Long categoryId,
-                                List<TagDto> tags,
-
-                                MultipartFile postImage
-
+                                List<String> tags,
+                                String bannerUrl,
+                                Boolean draft
                                 ) {
+    public CreatePostRequest {
+        System.out.println("CreatePostRequest created with postTitle: " + postTitle +
+                ", postContent: " + postContent +
+                ", postDescription: " + postDescription +
+                ", categoryId: " + categoryId +
+                ", tags: " + tags +
+                ", bannerUrl: " + bannerUrl +
+                ", draft: " + draft);
+    }
 }

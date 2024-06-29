@@ -22,16 +22,20 @@ public class Post {
     @Column(name = "POST_ID")
     private Long postId;
 
-    @Column(nullable = false, name = "POST_TITLE")
-    @NotBlank(message = "post title cannot be empty or null!!!")
+    @Column(name = "POST_TITLE")
     private String postTitle;
 
-    @Column(nullable = false, length = 1000, name = "POST_CONTENT")
-    @NotBlank(message = "post content cannot be empty or null!!!")
+    @Column(length = 1000, name = "POST_CONTENT")
     private String postContent;
+
+    @Column(length = 200, name = "POST_DESC")
+    private String postDescription;
 
     @Column(name = "IMAGE_URL")
     private String imageName;
+
+    @Column(name = "DRAFT")
+    private Boolean draft;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "PUBLISHED")

@@ -1,12 +1,13 @@
 package org.prashant.blog.blogapplicationapi;
 
-
+import jakarta.annotation.PostConstruct;
 import org.modelmapper.ModelMapper;
 import org.prashant.blog.blogapplicationapi.entities.Role;
 import org.prashant.blog.blogapplicationapi.repository.RoleRepository;
 import org.prashant.blog.blogapplicationapi.utils.AppConstant;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -14,31 +15,47 @@ import org.springframework.context.annotation.Bean;
 import java.util.List;
 
 @SpringBootApplication
-public class BlogApplicationApiApplication implements CommandLineRunner {
+public class BlogApplicationApiApplication {
+
+    private static final Logger logger = LoggerFactory.getLogger(BlogApplicationApiApplication.class);
+
+    private final RoleRepository roleRepository;
 
     @Autowired
-    private RoleRepository roleRepository;
+    public BlogApplicationApiApplication(RoleRepository roleRepository) {
+        this.roleRepository = roleRepository;
+    }
+
     public static void main(String[] args) {
         SpringApplication.run(BlogApplicationApiApplication.class, args);
     }
 
     @Bean
-    ModelMapper modelMapper() {
+    public ModelMapper modelMapper() {
         return new ModelMapper();
     }
 
-    @Override
-    public void run(String... args) {
+    @PostConstruct
+    public void initRoles() {
         try {
-            Role admin_role=new Role(), user_role=new Role();
-            admin_role.setId(AppConstant.ADMIN_USER);
-            admin_role.setName("ADMIN");
-            user_role.setId(AppConstant.NORMAL_USER);
-            user_role.setName("NORMAL");
-            this.roleRepository.saveAll(List.of(admin_role, user_role));
-        }catch (Exception e) {
-            e.printStackTrace();
+            roleRepository.saveAll(List.of(buildRoles()));
+            logger.info("Roles have been successfully saved.");
+        } catch (Exception e) {
+            logger.error("Error occurred while saving roles: ", e);
         }
     }
-}
 
+    private Role[] buildRoles() {
+        Role adminRole = Role.builder()
+                .id(AppConstant.ADMIN_USER)
+                .name("ADMIN")
+                .build();
+
+        Role userRole = Role.builder()
+                .id(AppConstant.NORMAL_USER)
+                .name("NORMAL")
+                .build();
+
+        return new Role[]{adminRole, userRole};
+    }
+}

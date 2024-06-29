@@ -6,23 +6,18 @@ import lombok.*;
 
 import java.util.*;
 
+@Entity
 @Setter
 @Getter
-@ToString
-@Entity
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class Role {
     @Id
     private Long id;
-
     @Column(nullable = false, name = "ROLE_NAME")
     private String name;
-
     @ManyToMany(mappedBy = "roles")
     @JsonBackReference
     private Set<User> users;
-
-    // Constructors, getters, setters, and other methods
 }

@@ -27,15 +27,20 @@ public class FileController {
 
     @PostMapping("/upload")
     public ResponseEntity<String> uploadFileHandler(@RequestBody MultipartFile file) throws IOException{
+        System.out.println("reached from upload");
         String uploadedFileName = fileService.uploadFile(path, file);
-        return ResponseEntity.ok("File uploaded successfully"+uploadedFileName);
+        return ResponseEntity.ok(uploadedFileName);
     }
 
-    @GetMapping("/{fileName}")
+    @GetMapping("/name/{fileName}")
     public void serveFileHandler(@PathVariable String fileName, HttpServletResponse response) throws IOException {
         InputStream resouceFile = fileService.getResourceFile(path, fileName);
         response.setContentType(MediaType.IMAGE_PNG_VALUE);
         StreamUtils.copy(resouceFile, (OutputStream) response.getOutputStream());
     }
 
+    @DeleteMapping("/{fileName}")
+    public void deleteFileHandler(@PathVariable String fileName) throws IOException {
+        fileService.deleteResource(path, fileName);
+    }
 }

@@ -2,6 +2,7 @@ package org.prashant.blog.blogapplicationapi.payload;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.*;
 import org.prashant.blog.blogapplicationapi.entities.Role;
@@ -23,6 +24,7 @@ public class UserDto {
     private List<PostDto> posts;
     @JsonIgnore
     private List<CommentDto> comments;
+    @JsonManagedReference
     private Set<Role> roles;
     @JsonIgnore
     public String getUserPassword(){

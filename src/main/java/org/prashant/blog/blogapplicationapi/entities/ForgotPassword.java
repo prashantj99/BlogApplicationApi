@@ -16,8 +16,11 @@ public class ForgotPassword {
     private  Long otp;
 
     @Column(nullable = false)
+    String token;
+
+    @Column(nullable = false)
     private Date expirationTime;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.EAGER)
     private User user;
 }

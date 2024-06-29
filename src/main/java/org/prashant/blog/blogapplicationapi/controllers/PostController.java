@@ -1,13 +1,16 @@
 package org.prashant.blog.blogapplicationapi.controllers;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.modelmapper.ModelMapper;
 import org.prashant.blog.blogapplicationapi.entities.Post;
+import org.prashant.blog.blogapplicationapi.entities.User;
 import org.prashant.blog.blogapplicationapi.payload.*;
 import org.prashant.blog.blogapplicationapi.service.PostService;
 import org.prashant.blog.blogapplicationapi.utils.AppConstant;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -19,14 +22,16 @@ import java.util.List;
 public class PostController {
 
     private final PostService postService;
-    @PostMapping("/create_post/")
-    public ResponseEntity<PostDto> createPost(@ModelAttribute CreatePostRequest createPostRequest) throws IOException {
-        PostDto created_post = this.postService.createPost(createPostRequest);
-        return new ResponseEntity<>(created_post, HttpStatus.CREATED);
+    @PostMapping("/create_post")
+    public ResponseEntity<PostDto> createPost(@RequestBody CreatePostRequest createPostRequest) throws IOException {
+        User login_user = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        PostDto created_post = this.postService.createPost(createPostRequest, login_user.getUserId());
+        System.out.println(created_post);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created_post);
     }
 
-    @PutMapping("/update/")
-    public ResponseEntity<PostDto> updatePost(@ModelAttribute PostUpdateRequest postUpdateRequest) throws IOException {
+    @PostMapping("/update")
+    public ResponseEntity<PostDto> updatePost(@RequestBody PostUpdateRequest postUpdateRequest) throws IOException {
          PostDto updated_post = this.postService.updatePost(postUpdateRequest);
         return new ResponseEntity<>(updated_post, HttpStatus.OK);
     }

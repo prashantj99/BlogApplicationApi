@@ -23,8 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -44,56 +43,95 @@ public class PostServiceImpl implements PostService {
     private String baseurl;
 
     @Override
-    public PostDto createPost(CreatePostRequest createPostRequest) throws IOException {
+    public PostDto createPost(CreatePostRequest createPostRequest, Long userId) throws IOException {
+        System.out.println(createPostRequest);
         Category category = this.categoryRepository.findById(createPostRequest.categoryId())
                 .orElseThrow(()->new ResourceNotFound("Category", "categoryId", createPostRequest.categoryId().toString()));
-        User user = this.userRepository.findById(createPostRequest.userId())
-                .orElseThrow(()->new ResourceNotFound("User", "userId", createPostRequest.userId().toString()));
-
+        User user = this.userRepository.findById(userId)
+                .orElseThrow(()->new ResourceNotFound("User", "userId", userId.toString()));
         Post post = new Post();
         post.setPostTitle(createPostRequest.postTitle());
         post.setPostContent(createPostRequest.postContent());
+        post.setPostDescription(createPostRequest.postDescription());
+        post.setDraft(createPostRequest.draft());
         post.setAddedDate(new Date());
         post.setLastUpdateDate(new Date());
         post.setUser(user);
         post.setCategory(category);
-        //add tags pending
-
-        //save post image
-        MultipartFile post_img = createPostRequest.postImage();
-        if(!post_img.isEmpty()){
-            String uploadedFileName = fileService.uploadFile(path, post_img);
-            post.setImageName(uploadedFileName);
+        //save tags
+        List<Tag> tags=null;
+        if(!createPostRequest.tags().isEmpty()){
+            tags = createPostRequest.tags().stream()
+            .map(tagName -> tagRepository.findByTagName(tagName.toLowerCase())
+            .orElseGet(() -> {
+                Tag newTag = new Tag();
+                newTag.setTagName(tagName.toLowerCase());
+                return tagRepository.save(newTag);
+            })).toList();
         }
-
+        post.setTags(tags);
+        post.setImageName(createPostRequest.bannerUrl());
         Post saved_post = this.postRepository.save(post);
-        System.out.println("db post : "+saved_post);
-
         return this.modelMapper.map(saved_post, PostDto.class);
     }
 
     @Override
     public PostDto updatePost(PostUpdateRequest postUpdateRequest) throws IOException {
         Post post = this.postRepository.findById(postUpdateRequest.postId())
-                .orElseThrow(()-> new ResourceNotFound("Post", "postId", postUpdateRequest.postId().toString()));
+                .orElseThrow(() -> new ResourceNotFound("Post", "postId", postUpdateRequest.postId().toString()));
+
         User user = userRepository.findById(postUpdateRequest.userId())
                 .orElseThrow(() -> new ResourceNotFound("User", "userId", postUpdateRequest.userId().toString()));
+
+        Category category = this.categoryRepository.findById(postUpdateRequest.categoryId())
+                .orElseThrow(()->new ResourceNotFound("Category", "categoryId", postUpdateRequest.categoryId().toString()));
 
         if (!post.getUser().getUserId().equals(user.getUserId())) {
             throw new RuntimeException("You are not authorized to update this post.");
         }
 
+        //if the post is still a draft
+        if(postUpdateRequest.draft()) {
+            if (postUpdateRequest.postTitle().isBlank()) {
+                throw new RuntimeException("post title is empty!!!");
+            }
+            if (postUpdateRequest.postContent().isBlank()) {
+                throw new RuntimeException("post content is empty!!!");
+            }
+            if (postUpdateRequest.tags().isEmpty()) throw new RuntimeException("at least one tag is required!!!");
+            if (postUpdateRequest.bannerUrl().isBlank()) throw new RuntimeException("banner is required!!!");
+        }
+        if(!postUpdateRequest.draft()){
+            if (postUpdateRequest.postContent().length() >= 3) {
+                throw new RuntimeException("post content is must be 3 character long!!!");
+            }
+            if(postUpdateRequest.postDescription().isBlank()){
+                throw new RuntimeException("add a small description to your post!!!");
+            }
+            post.setPostDescription(postUpdateRequest.postDescription());
+        }
+
+        // Fetch and set tags
+        List<Tag> tags = new ArrayList<>();
+        for (String tagName : postUpdateRequest.tags()) {
+            Tag tag = this.tagRepository.findByTagName(tagName)
+                    .orElseGet(() -> {
+                        Tag created_tag = new Tag();
+                        created_tag.setTagName(tagName);
+                        return created_tag;
+                    }); // If tag does not exist, create a new one
+            tags.add(tag);
+        }
+        post.setTags(tags);
         post.setPostTitle(postUpdateRequest.postTitle());
         post.setPostContent(postUpdateRequest.postContent());
+        post.setImageName(postUpdateRequest.bannerUrl());
+        post.setCategory(category);
         post.setLastUpdateDate(new Date());
-        MultipartFile post_img = postUpdateRequest.postImage();
-        if(post_img != null && !post_img.isEmpty()){
-            fileService.deleteResource(path, post.getImageName());
-            String updated_post_img = fileService.uploadFile(path, post_img);
-            post.setImageName(updated_post_img);
-        }
+        post.setDraft(postUpdateRequest.draft());
+
         Post updated_post = this.postRepository.save(post);
-        return this.modelMapper.map(updated_post, PostDto.class);
+        return modelMapper.map(updated_post, PostDto.class);
     }
 
     @Override

@@ -14,4 +14,6 @@ public interface ForgotPasswordRepository extends JpaRepository<ForgotPassword, 
     @Transactional
     @Modifying
     void deleteByUser(User user);
+
+    Optional<ForgotPassword> findByToken(String token);
 }

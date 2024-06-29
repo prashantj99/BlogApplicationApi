@@ -9,6 +9,7 @@ import org.prashant.blog.blogapplicationapi.auth.utils.RegisterRequest;
 import org.prashant.blog.blogapplicationapi.entities.RefreshToken;
 import org.prashant.blog.blogapplicationapi.entities.Role;
 import org.prashant.blog.blogapplicationapi.entities.User;
+import org.prashant.blog.blogapplicationapi.exceptions.InvalidParameterException;
 import org.prashant.blog.blogapplicationapi.exceptions.ResourceNotFound;
 import org.prashant.blog.blogapplicationapi.payload.UserDto;
 import org.prashant.blog.blogapplicationapi.repository.RoleRepository;
@@ -34,12 +35,15 @@ public class AuthService {
     private final ModelMapper modelMapper;
 
     public AuthResponse register(RegisterRequest registerRequest){
+        if(!registerRequest.getPassword().equals(registerRequest.getRepeatPassword())){
+            throw new InvalidParameterException("repeat password mismatch");
+        }
         Role role = this.roleRepository.findById(AppConstant.NORMAL_USER).orElseThrow(()->new ResourceNotFound("Role", "role_id", "501"));
         Set<Role> roles = new HashSet<>();
         roles.add(role);
 
         var user = User.builder()
-                .name(registerRequest.getName())
+                .name(registerRequest.getUsername())
                 .userEmail(registerRequest.getEmail())
                 .userPassword(passwordEncoder.encode(registerRequest.getPassword()))
                 .roles(roles)
@@ -50,6 +54,7 @@ public class AuthService {
         var refreshToken = refreshTokenService.createRefreshToken(savedUser.getUserEmail());
         return AuthResponse.builder()
                 .accessToken(accessToken)
+                .userDto(modelMapper.map(user, UserDto.class))
                 .refreshToken(refreshToken.getRefreshToken())
                 .build();
     }

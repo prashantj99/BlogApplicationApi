@@ -39,7 +39,7 @@ public class CategoryController {
         return new ResponseEntity<>(new ApiResponse("category deleted successfully!!!", true), HttpStatus.OK);
     }
 
-    @GetMapping("/")
+    @GetMapping("/all")
     public ResponseEntity<CategoryPageResponse> getAllCategory(
             @RequestParam(value ="pageNumber", defaultValue = AppConstant.PAGE_NUMBER, required = false) Integer pageNumber,
             @RequestParam(value ="pageSize", defaultValue = AppConstant.PAGE_SIZE, required = false) Integer pageSize,

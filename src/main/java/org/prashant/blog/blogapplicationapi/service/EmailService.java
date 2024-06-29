@@ -11,10 +11,12 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class EmailService {
     private final JavaMailSender javaMailSender;
+    @Value("${spring.mail.username}")
+    String org_mail;
     public void sendSimpleMessage(MailBody mailBody){
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(mailBody.to());
-        message.setFrom("ORG-MAIL");
+        message.setFrom(org_mail);
         message.setSubject(mailBody.subject());
         message.setText(mailBody.text());
         javaMailSender.send(message);

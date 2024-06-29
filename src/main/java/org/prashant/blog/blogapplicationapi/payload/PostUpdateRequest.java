@@ -1,5 +1,6 @@
 package org.prashant.blog.blogapplicationapi.payload;
 
+import jakarta.validation.constraints.NotBlank;
 import org.prashant.blog.blogapplicationapi.entities.Tag;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -10,9 +11,11 @@ public record PostUpdateRequest(
         Long postId,
         String postTitle,
         String postContent,
-        List<TagDto> tags,
-        MultipartFile postImage,
-
+        String postDescription,
+        Long categoryId,
+        List<String> tags,
+        String bannerUrl,
+        Boolean draft,
         Long userId
 ) {
 }

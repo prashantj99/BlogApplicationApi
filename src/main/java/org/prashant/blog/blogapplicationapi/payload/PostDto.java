@@ -17,6 +17,7 @@ public class PostDto {
     private String postTitle;
     private String postContent;
     private String imageName;
+    private Boolean isPublished;
     private Date addedDate;
     private Date lastUpdateDate;
     private CategoryDto category;
