@@ -13,7 +13,7 @@ public record UserDT(
         String email,
         String about,
         String profileImg,
-        List<Account> accounts,
+        List<AccountDT> accounts,
         Set<RoleDT> roles
 ) {
    public UserDT(User user){
@@ -22,7 +22,7 @@ public record UserDT(
                user.getEmail(),
                user.getAbout(),
                user.getProfileImg(),
-               user.getAccounts(),
+               user.getAccounts().stream().map((acc)-> new AccountDT(acc.getAccountId(), acc.getLink(), acc.getPlatform())).toList(),
                user.getRoles().stream().map(RoleDT::new).collect(Collectors.toSet())
                );
    }

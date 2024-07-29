@@ -2,8 +2,12 @@ package org.prashant.blog.blogapplicationapi.serviceimpl;
 
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.prashant.blog.blogapplicationapi.entities.Account;
 import org.prashant.blog.blogapplicationapi.entities.Role;
+import org.prashant.blog.blogapplicationapi.entities.Tag;
 import org.prashant.blog.blogapplicationapi.entities.User;
+import org.prashant.blog.blogapplicationapi.payload.UpdateUserRequest;
+import org.prashant.blog.blogapplicationapi.payload.UserDT;
 import org.prashant.blog.blogapplicationapi.payload.UserPageResponse;
 import org.prashant.blog.blogapplicationapi.exceptions.ResourceNotFound;
 import org.prashant.blog.blogapplicationapi.payload.UserDto;
@@ -18,6 +22,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -81,5 +86,35 @@ public class UserServiceImpl implements UserService {
                 page_user.getNumber(), page_user.getSize(),
                 page_user.getTotalElements(),
                 page_user.getTotalPages(), page_user.isLast());
+    }
+
+    @Override
+    public UserDT getUser(Long userId) {
+        var user = userRepository.findById(userId).orElseThrow(()-> new ResourceNotFound("User", "userId", userId.toString()));
+        return new UserDT(user);
+    }
+
+    @Override
+    public UserDT updateUser(UpdateUserRequest request) {
+        var user = this.userRepository.findById(request.userId())
+                .orElseThrow(() -> new ResourceNotFound("User", "user_id", request.userId().toString()));
+        user.setPassword(passwordEncoder.encode(request.password()));
+        user.setAbout(request.about());
+        user.setProfileImg(request.profileImg());
+
+        List<Account> accounts = request.accounts().stream().map(
+                account -> {
+                    Account acc = new Account();
+                    acc.setAccountId(account.accountId());
+                    acc.setUser(user);
+                    acc.setLink(account.link());
+                    acc.setPlatform(account.platform());
+                    return acc;
+                }
+        ).toList();
+
+        user.setAccounts(accounts);
+        var savedUser = userRepository.save(user);
+        return new UserDT(savedUser);
     }
 }

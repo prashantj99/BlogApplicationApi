@@ -41,7 +41,6 @@ public class PostController {
             @RequestParam(value = "sortBy", defaultValue = AppConstant.DEFAULT_POST_SORT_FIELD, required = false) String sortBy,
             @RequestParam(value = "sortDir", defaultValue = AppConstant.DEFAULT_SORT_CRITERIA, required = false) String sortDir
     ){
-        logger.debug("reached to post re page");
         PostPageResponse postPageResponse = this.postService.getPosts(pageNumber, pageSize, sortBy, sortDir);
         return ResponseEntity.ok(postPageResponse);
     }

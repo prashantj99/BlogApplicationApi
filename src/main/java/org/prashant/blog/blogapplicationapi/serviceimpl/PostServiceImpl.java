@@ -32,7 +32,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PostServiceImpl implements PostService {
 
-    private final ModelMapper modelMapper;
     private final PostRepository postRepository;
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
@@ -101,17 +100,16 @@ public class PostServiceImpl implements PostService {
             if (postUpdateRequest.postContent().isBlank()) {
                 throw new RuntimeException("post content is empty!!!");
             }
-            if (postUpdateRequest.tags().isEmpty()) throw new InvalidParameterException("at least one tag is required!!!");
             if (postUpdateRequest.bannerUrl().isBlank()) throw new InvalidParameterException("banner is required!!!");
         }
         if(!postUpdateRequest.draft()){
             if (postUpdateRequest.postContent().isBlank()) {
                 throw new InvalidParameterException("post content cannot be blank!!!");
             }
+            if (postUpdateRequest.tags().isEmpty()) throw new InvalidParameterException("at least one tag is required!!!");
             if(postUpdateRequest.postDescription().isBlank()){
                 throw new InvalidParameterException("add a small description to your post!!!");
             }
-            post.setDescription(postUpdateRequest.postDescription());
         }
 
         // Fetch and set tags
@@ -123,9 +121,14 @@ public class PostServiceImpl implements PostService {
                         created_tag.setName(tagName);
                         return created_tag;
                     }); // If tag does not exist, create a new one
+            // Save the tag if it is newly created
+            if (tag.getId() == null) {
+                tag = this.tagRepository.save(tag);
+            }
             tags.add(tag);
         }
         post.setTags(tags);
+        post.setDescription(postUpdateRequest.postDescription());
         post.setTitle(postUpdateRequest.postTitle());
         post.setContent(postUpdateRequest.postContent());
         post.setBannerUrl(postUpdateRequest.bannerUrl());
