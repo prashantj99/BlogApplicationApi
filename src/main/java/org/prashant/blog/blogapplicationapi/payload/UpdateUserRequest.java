@@ -9,6 +9,7 @@ public record UpdateUserRequest(
         Long userId,
         String password,
         String about,
+        String name,
         String profileImg,
         List<AccountDT> accounts
 ) {

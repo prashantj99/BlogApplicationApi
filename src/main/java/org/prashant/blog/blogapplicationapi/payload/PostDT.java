@@ -16,7 +16,7 @@ public record PostDT(
         Date published,
         Date lastUpdated,
         List<TagDT> tags,
-        Long categoryId,
+        CategoryDT category,
         UserDT userDT
 ) {
     public PostDT(Post post) {
@@ -29,7 +29,7 @@ public record PostDT(
                 post.getPublished(),
                 post.getLastUpdated(),
                 post.getTags().stream().map(TagDT::new).toList(),
-                post.getCategory().getCategoryId(),
+                new CategoryDT(post.getCategory()),
                 new UserDT(post.getUser())
                 );
     }

@@ -106,4 +106,16 @@ public class PostController {
         return new ResponseEntity<>(new ApiResponse("post deleted successfully!!!", true), HttpStatus.OK);
     }
 
+    @GetMapping("/published/{draft}/{userId}")
+    public  ResponseEntity<?> publishedPostsByUserHandler(
+            @PathVariable Long userId,
+            @PathVariable Boolean draft,
+            @RequestParam(value ="pageNumber", defaultValue = AppConstant.PAGE_NUMBER, required = false) Integer pageNumber,
+            @RequestParam(value ="pageSize", defaultValue = AppConstant.PAGE_SIZE, required = false) Integer pageSize,
+            @RequestParam(value = "sortBy", defaultValue = AppConstant.DEFAULT_POST_SORT_FIELD, required = false) String sortBy,
+            @RequestParam(value = "sortDir", defaultValue = AppConstant.DEFAULT_SORT_CRITERIA, required = false) String sortDir
+    ){
+        var posts = this.postService.getPublishedPostsByUser(userId, draft, pageNumber, pageSize, sortBy, sortDir);
+        return ResponseEntity.ok(posts);
+    }
 }

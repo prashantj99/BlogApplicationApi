@@ -264,4 +264,24 @@ public class PostServiceImpl implements PostService {
                 postsPage.isLast()
         );
     }
+
+    @Override
+    public PostPageResponse getPublishedPostsByUser(Long userId, boolean draft, Integer pageNumber, Integer pageSize, String sortBy, String sortDir) {
+        Sort sort = Sort.by(sortDir.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, sortBy);
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+
+        var user = this.userRepository.findById(userId).orElseThrow(() -> new ResourceNotFound("User", "userId", userId.toString()));
+        Page<Post> postsPage = postRepository.findPostByUserAndDraft(user, draft, pageable);
+
+        List<PostDT> posts = postsPage.getContent().stream().map(PostDT::new).toList();
+
+        return new PostPageResponse(
+                posts,
+                postsPage.getNumber(),
+                postsPage.getSize(),
+                postsPage.getTotalElements(),
+                postsPage.getTotalPages(),
+                postsPage.isLast()
+        );
+    }
 }

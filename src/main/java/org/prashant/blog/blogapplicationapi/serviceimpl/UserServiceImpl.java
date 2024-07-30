@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -98,23 +99,30 @@ public class UserServiceImpl implements UserService {
     public UserDT updateUser(UpdateUserRequest request) {
         var user = this.userRepository.findById(request.userId())
                 .orElseThrow(() -> new ResourceNotFound("User", "user_id", request.userId().toString()));
-        user.setPassword(passwordEncoder.encode(request.password()));
+
+        // Update user details
         user.setAbout(request.about());
-        user.setProfileImg(request.profileImg());
+        user.setName(request.name());
 
-        List<Account> accounts = request.accounts().stream().map(
-                account -> {
-                    Account acc = new Account();
-                    acc.setAccountId(account.accountId());
-                    acc.setUser(user);
-                    acc.setLink(account.link());
-                    acc.setPlatform(account.platform());
-                    return acc;
-                }
-        ).toList();
+        // Clear the existing accounts and add the new ones
+        user.getAccounts().clear();
+        List<Account> newAccounts = request.accounts().stream().map(account -> {
+            Account acc = new Account();
+            acc.setAccountId(account.accountId());
+            acc.setUser(user);
+            acc.setLink(account.link());
+            acc.setPlatform(account.platform());
+            return acc;
+        }).toList();
 
-        user.setAccounts(accounts);
+        user.getAccounts().addAll(newAccounts);
+
+        // Save updated user
         var savedUser = userRepository.save(user);
+
+        // Return updated user details
         return new UserDT(savedUser);
     }
+
+
 }
