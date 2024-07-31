@@ -2,18 +2,13 @@ package org.prashant.blog.blogapplicationapi.serviceimpl;
 
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.prashant.blog.blogapplicationapi.entities.Category;
-import org.prashant.blog.blogapplicationapi.entities.Post;
-import org.prashant.blog.blogapplicationapi.entities.Tag;
-import org.prashant.blog.blogapplicationapi.entities.User;
+import org.prashant.blog.blogapplicationapi.entities.*;
 import org.prashant.blog.blogapplicationapi.exceptions.InvalidParameterException;
 import org.prashant.blog.blogapplicationapi.exceptions.ResourceNotFound;
 import org.prashant.blog.blogapplicationapi.exceptions.UnAuthorizedOperationExcpetion;
 import org.prashant.blog.blogapplicationapi.payload.*;
-import org.prashant.blog.blogapplicationapi.repository.CategoryRepository;
-import org.prashant.blog.blogapplicationapi.repository.PostRepository;
-import org.prashant.blog.blogapplicationapi.repository.TagRepository;
-import org.prashant.blog.blogapplicationapi.repository.UserRepository;
+import org.prashant.blog.blogapplicationapi.repository.*;
+import org.prashant.blog.blogapplicationapi.service.ActivityService;
 import org.prashant.blog.blogapplicationapi.service.FileService;
 import org.prashant.blog.blogapplicationapi.service.PostService;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,9 +19,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -37,6 +32,10 @@ public class PostServiceImpl implements PostService {
     private final UserRepository userRepository;
     private final TagRepository tagRepository;
     private final FileService fileService;
+    private final ActivityService activityService;
+    private final ActivityRepository activityRepository;
+    private final CommentRepository commentRepository;
+
 
     @Value("${project.image}")
     private String path;
@@ -71,6 +70,7 @@ public class PostServiceImpl implements PostService {
         }
         post.setTags(tags);
         post.setBannerUrl(request.bannerUrl());
+        post.setPostActivities(new ArrayList<>());
 
         //save post to database
         Post saved_post = this.postRepository.save(post);
@@ -284,4 +284,55 @@ public class PostServiceImpl implements PostService {
                 postsPage.isLast()
         );
     }
+
+    @Override
+    public PostPageResponse getTrendingPosts(Integer pageNumber, Integer pageSize) {
+        LocalDateTime oneWeekAgo = LocalDateTime.now().minusDays(7);
+
+        // Fetch counts of likes and comments
+        List<Object[]> likeCounts = activityRepository.countActivitiesByPostId(oneWeekAgo, ActivityType.LIKE);
+        List<Object[]> commentCounts = commentRepository.countCommentsByPostId(oneWeekAgo);
+
+        // Create maps to hold the counts
+        Map<Long, Long> postLikeCountMap = likeCounts.stream()
+                .collect(Collectors.toMap(arr -> (Long) arr[0], arr -> (Long) arr[1]));
+        Map<Long, Long> postCommentCountMap = commentCounts.stream()
+                .collect(Collectors.toMap(arr -> (Long) arr[0], arr -> (Long) arr[1]));
+
+        // Combine like and comment counts into a popularity map
+        Map<Long, Long> postPopularityMap = new HashMap<>();
+        postLikeCountMap.forEach((postId, likeCount) -> {
+            Long commentCount = postCommentCountMap.getOrDefault(postId, 0L);
+            postPopularityMap.put(postId, likeCount + commentCount);
+        });
+
+        // Sort post IDs by popularity
+        List<Map.Entry<Long, Long>> sortedEntries = postPopularityMap.entrySet().stream()
+                .sorted(Map.Entry.<Long, Long>comparingByValue().reversed()).toList();
+
+        // Calculate pagination indices
+        int totalPosts = sortedEntries.size();
+        int start = Math.min(pageNumber * pageSize, totalPosts);
+        int end = Math.min(start + pageSize, totalPosts);
+
+        // Get IDs for the current page
+        List<Long> paginatedPostIds = sortedEntries.subList(start, end).stream()
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+
+        // Fetch posts for the current page
+        List<Post> posts = postRepository.findAllById(paginatedPostIds);
+
+        // Convert to DTOs
+        List<PostDT> postDTs = posts.stream().map(PostDT::new).collect(Collectors.toList());
+
+        // Calculate if there are more pages
+        boolean hasMorePages = (end < totalPosts);
+
+        // Create and return the response
+        return new PostPageResponse(postDTs, pageNumber, pageSize, (long)postDTs.size(),
+                (int) Math.ceil((double) totalPosts / pageSize), hasMorePages);
+    }
+
+
 }

@@ -55,12 +55,8 @@ public class Post {
     @JsonBackReference
     private User user;
 
-    @ManyToMany
-    @JoinTable(
-            name = "post_activity",
-            joinColumns = @JoinColumn(name = "post_id"),
-            inverseJoinColumns = @JoinColumn(name = "activity_id")
-    )
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<Activity> postActivities;
 
     @ManyToMany

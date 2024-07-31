@@ -1,38 +1,41 @@
-package org.prashant.blog.blogapplicationapi.entities;
+    package org.prashant.blog.blogapplicationapi.entities;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import jakarta.persistence.*;
-import lombok.Data;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+    import com.fasterxml.jackson.annotation.JsonBackReference;
+    import com.fasterxml.jackson.annotation.JsonIgnore;
+    import jakarta.persistence.*;
+    import lombok.Data;
+    import lombok.Getter;
+    import lombok.RequiredArgsConstructor;
+    import lombok.Setter;
 
-import java.time.LocalDateTime;
+    import java.time.LocalDateTime;
 
-@Entity
-@Setter
-@Getter
-@RequiredArgsConstructor
-public class Activity {
+    @Entity
+    @Setter
+    @Getter
+    @RequiredArgsConstructor
+    @Table(name = "activity")
+    public class Activity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long activityId;
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        @Column(name = "activity_id")
+        private Long activityId;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    @JsonBackReference
-    private User user;
+        @ManyToOne
+        @JoinColumn(name = "user_id", nullable = false)
+        @JsonBackReference
+        private User user;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "activity_type", nullable = false)
-    private ActivityType activityType;
+        @Enumerated(EnumType.STRING)
+        @Column(name = "activity_type", nullable = false)
+        private ActivityType activityType;
 
-    @ManyToOne
-    @JoinColumn(name = "post_id", nullable = false)
-    @JsonBackReference
-    private Post post;
+        @ManyToOne
+        @JoinColumn(name = "post_id", nullable = false)
+        @JsonBackReference
+        private Post post;
 
-    @Column(name = "activity_date", nullable = false)
-    private LocalDateTime activityDate;
-}
+        @Column(name = "activity_date", nullable = false)
+        private LocalDateTime activityDate;
+    }

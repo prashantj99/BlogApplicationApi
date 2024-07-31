@@ -1,7 +1,6 @@
 package org.prashant.blog.blogapplicationapi.payload;
 
 import org.prashant.blog.blogapplicationapi.entities.Post;
-import org.prashant.blog.blogapplicationapi.entities.Tag;
 
 import java.util.Date;
 import java.util.List;
@@ -17,7 +16,8 @@ public record PostDT(
         Date lastUpdated,
         List<TagDT> tags,
         CategoryDT category,
-        UserDT userDT
+        UserDT user,
+        List<ActivityDT> activities
 ) {
     public PostDT(Post post) {
         this(post.getPostId(),
@@ -30,7 +30,9 @@ public record PostDT(
                 post.getLastUpdated(),
                 post.getTags().stream().map(TagDT::new).toList(),
                 new CategoryDT(post.getCategory()),
-                new UserDT(post.getUser())
+                new UserDT(post.getUser()),
+                post.getPostActivities().stream().map(ActivityDT::new).toList()
                 );
+        post.getPostActivities().forEach((System.out::println));
     }
 }

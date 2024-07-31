@@ -118,4 +118,14 @@ public class PostController {
         var posts = this.postService.getPublishedPostsByUser(userId, draft, pageNumber, pageSize, sortBy, sortDir);
         return ResponseEntity.ok(posts);
     }
+
+    @GetMapping("/trending")
+    public  ResponseEntity<?> trendingPostsHandler(
+            @RequestParam(value ="pageNumber", defaultValue = AppConstant.PAGE_NUMBER, required = false) Integer pageNumber,
+            @RequestParam(value ="pageSize", defaultValue = AppConstant.PAGE_SIZE, required = false) Integer pageSize
+    ){
+        var posts = this.postService.getTrendingPosts(pageNumber, pageSize);
+        return ResponseEntity.ok(posts);
+    }
+
 }

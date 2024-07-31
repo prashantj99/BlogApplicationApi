@@ -1,5 +1,6 @@
 package org.prashant.blog.blogapplicationapi.service;
 
+import org.prashant.blog.blogapplicationapi.entities.ActivityType;
 import org.prashant.blog.blogapplicationapi.payload.*;
 
 import java.io.IOException;
@@ -18,5 +19,6 @@ public interface PostService {
     PostPageResponse searchPosts(String keyword, Integer pageNumber, Integer pageSize, String sortBy, String sortDir);
 
     PostPageResponse getPublishedPostsByUser(Long userId, boolean draft, Integer pageNumber, Integer pageSize, String sortBy, String sortDir);
+    PostPageResponse getTrendingPosts(Integer pageNumber, Integer pageSize);
 
 }
