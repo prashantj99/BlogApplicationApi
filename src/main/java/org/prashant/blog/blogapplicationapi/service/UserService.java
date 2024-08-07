@@ -1,9 +1,6 @@
 package org.prashant.blog.blogapplicationapi.service;
 
-import org.prashant.blog.blogapplicationapi.payload.UpdateUserRequest;
-import org.prashant.blog.blogapplicationapi.payload.UserDT;
-import org.prashant.blog.blogapplicationapi.payload.UserPageResponse;
-import org.prashant.blog.blogapplicationapi.payload.UserDto;
+import org.prashant.blog.blogapplicationapi.payload.*;
 
 public interface UserService {
     UserDto createUser(UserDto userDto);
@@ -14,4 +11,6 @@ public interface UserService {
     UserDT getUser(Long userId);
     UserDT updateUser(UpdateUserRequest request);
 
+    void subscribeToCategory(Long userId, Long categoryId);
+    PostPageResponse getPostsFromSubscribedCategories(Long userId, Integer pageNumber, Integer pageSize, String sortBy, String sortDir);
 }

@@ -8,6 +8,7 @@ import org.prashant.blog.blogapplicationapi.payload.CategoryDT;
 import org.prashant.blog.blogapplicationapi.payload.CategoryDto;
 import org.prashant.blog.blogapplicationapi.payload.CategoryPageResponse;
 import org.prashant.blog.blogapplicationapi.repository.CategoryRepository;
+import org.prashant.blog.blogapplicationapi.repository.UserRepository;
 import org.prashant.blog.blogapplicationapi.service.CategoryService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,6 +22,7 @@ import java.util.List;
 @Service
 public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
+    private final UserRepository userRepository;
     private final ModelMapper modelMapper;
 
     @Override
@@ -75,5 +77,11 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public List<CategoryDT> getAllCategories() {
             return this.categoryRepository.findAll().stream().map(CategoryDT::new).toList();
+    }
+
+    @Override
+    public CategoryDT getCategory(Long categoryId) {
+        var category = this.categoryRepository.findById(categoryId).orElseThrow(() -> new ResourceNotFound("Category", "categoryId", categoryId.toString()));
+        return new CategoryDT(category);
     }
 }

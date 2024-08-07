@@ -11,7 +11,8 @@ public interface CategoryService {
     CategoryDT updateCategoryDescriptionAndTitle(CategoryDT category);
     void deleteCategory(Long categoryId);
     CategoryPageResponse getCategories(Integer pageNumber, Integer pageSize, String sortBy, String sortDir);
-
     List<CategoryDT> getAllCategories();
+
+    CategoryDT getCategory(Long categoryId);
 
 }

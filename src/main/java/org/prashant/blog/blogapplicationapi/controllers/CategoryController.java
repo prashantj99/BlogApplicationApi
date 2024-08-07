@@ -56,5 +56,11 @@ public class CategoryController {
         return ResponseEntity.ok(this.categoryService.getAllCategories());
     }
 
+    @GetMapping("/{categoryId}")
+    public ResponseEntity<?> getCategoryHandler(@PathVariable Long categoryId){
+        System.out.println("fjaslkdjl");
+        return ResponseEntity.ok(this.categoryService.getCategory(categoryId));
+    }
+
 }
 

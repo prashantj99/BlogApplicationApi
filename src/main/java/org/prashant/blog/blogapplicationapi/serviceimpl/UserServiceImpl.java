@@ -2,16 +2,13 @@ package org.prashant.blog.blogapplicationapi.serviceimpl;
 
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.prashant.blog.blogapplicationapi.entities.Account;
-import org.prashant.blog.blogapplicationapi.entities.Role;
-import org.prashant.blog.blogapplicationapi.entities.Tag;
-import org.prashant.blog.blogapplicationapi.entities.User;
-import org.prashant.blog.blogapplicationapi.payload.UpdateUserRequest;
-import org.prashant.blog.blogapplicationapi.payload.UserDT;
-import org.prashant.blog.blogapplicationapi.payload.UserPageResponse;
+import org.prashant.blog.blogapplicationapi.entities.*;
+import org.prashant.blog.blogapplicationapi.payload.*;
 import org.prashant.blog.blogapplicationapi.exceptions.ResourceNotFound;
-import org.prashant.blog.blogapplicationapi.payload.UserDto;
+import org.prashant.blog.blogapplicationapi.repository.CategoryRepository;
+import org.prashant.blog.blogapplicationapi.repository.PostRepository;
 import org.prashant.blog.blogapplicationapi.repository.UserRepository;
+import org.prashant.blog.blogapplicationapi.service.CategoryService;
 import org.prashant.blog.blogapplicationapi.service.UserService;
 import org.prashant.blog.blogapplicationapi.utils.AppConstant;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +28,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final ModelMapper modelMapper;
-    private  final UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final PostRepository postRepository;
+    private final CategoryRepository categoryRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -124,5 +123,39 @@ public class UserServiceImpl implements UserService {
         return new UserDT(savedUser);
     }
 
+    @Override
+    public void subscribeToCategory(Long userId, Long categoryId) {
+        var user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFound("User", "userId", userId.toString()));
+        var category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ResourceNotFound("Category", "categoryId", categoryId.toString()));
 
+        if (user.getSubscribedCategories().contains(category)) {
+            user.getSubscribedCategories().remove(category);
+        } else {
+            user.getSubscribedCategories().add(category);
+        }
+        userRepository.save(user);
+    }
+
+    @Override
+    public PostPageResponse getPostsFromSubscribedCategories(Long userId, Integer pageNumber, Integer pageSize, String sortBy, String sortDir) {
+        var user = userRepository.findById(userId).orElseThrow(()-> new ResourceNotFound("User", "userId", userId.toString()));
+        //get user subscribed categories
+        List<Category> subscribedCategories = user.getSubscribedCategories();
+        subscribedCategories.forEach(category -> System.out.println(category.getTitle()));
+        //make page request
+        Sort sort = Sort.by(sortDir.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, sortBy);
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+        Page<Post> postsPage = postRepository.findByCategoryIn(subscribedCategories, pageable);
+        List<PostDT> posts = postsPage.getContent().stream().map(PostDT::new).toList();
+        return new PostPageResponse(
+                posts,
+                postsPage.getNumber(),
+                postsPage.getSize(),
+                postsPage.getTotalElements(),
+                postsPage.getTotalPages(),
+                postsPage.isLast()
+        );
+    }
 }

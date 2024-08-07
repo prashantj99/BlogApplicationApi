@@ -18,6 +18,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Query("SELECT p FROM Post p WHERE LOWER(p.title) LIKE %:keyword% OR LOWER(p.content) LIKE %:keyword%")
     Page<Post> findByTitleContainingIgnoreCaseOrContentContainingIgnoreCase(String keyword, Pageable pageable);
     Page<Post> findByTagsContaining(Tag tag, Pageable pageable);
-
     Page<Post> findPostByUserAndDraft(User user, boolean draft, Pageable pageable);
+    Page<Post> findByCategoryIn(List<Category> categories, Pageable pageable);
 }
