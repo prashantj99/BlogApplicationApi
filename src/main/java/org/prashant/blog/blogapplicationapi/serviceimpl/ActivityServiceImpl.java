@@ -3,11 +3,9 @@ package org.prashant.blog.blogapplicationapi.serviceimpl;
 import lombok.RequiredArgsConstructor;
 import org.prashant.blog.blogapplicationapi.entities.Activity;
 import org.prashant.blog.blogapplicationapi.entities.ActivityType;
-import org.prashant.blog.blogapplicationapi.entities.Post;
-import org.prashant.blog.blogapplicationapi.entities.User;
 import org.prashant.blog.blogapplicationapi.exceptions.ResourceNotFound;
-import org.prashant.blog.blogapplicationapi.payload.ActivityDT;
-import org.prashant.blog.blogapplicationapi.payload.PostDT;
+import org.prashant.blog.blogapplicationapi.payload.ActivityDTO;
+import org.prashant.blog.blogapplicationapi.payload.PostDTO;
 import org.prashant.blog.blogapplicationapi.payload.PostPageResponse;
 import org.prashant.blog.blogapplicationapi.repository.ActivityRepository;
 import org.prashant.blog.blogapplicationapi.repository.PostRepository;
@@ -30,7 +28,7 @@ public class ActivityServiceImpl implements ActivityService {
     private final ActivityRepository activityRepository;
 
     @Override
-    public ActivityDT performActivityOnPost(Long userId, Long postId, ActivityType activityType) {
+    public ActivityDTO performActivityOnPost(Long userId, Long postId, ActivityType activityType) {
         var user = this.userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFound("User", "userId", userId.toString()));
         var post = this.postRepository.findById(postId)
@@ -50,7 +48,7 @@ public class ActivityServiceImpl implements ActivityService {
                     newActivity.setPost(post);
                     return this.activityRepository.save(newActivity);
                 });
-        return new ActivityDT(activity);
+        return new ActivityDTO(activity);
     }
 
     @Override
@@ -66,7 +64,7 @@ public class ActivityServiceImpl implements ActivityService {
         Page<Activity> page_activities = activityRepository.findByUserAndActivityType(user, activityType, pageable);
 
         //get posts form activity
-        List<PostDT> posts = page_activities.getContent().stream().map(activity -> new PostDT(activity.getPost())).toList();
+        List<PostDTO> posts = page_activities.getContent().stream().map(activity -> new PostDTO(activity.getPost())).toList();
 
         //return payload
         return new PostPageResponse(posts,

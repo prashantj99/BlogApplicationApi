@@ -56,7 +56,7 @@ public class User implements UserDetails {
     )
     private List<Category> subscribedCategories;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @JsonManagedReference
     private List<Account> accounts;
 

@@ -1,14 +1,11 @@
 package org.prashant.blog.blogapplicationapi.serviceimpl;
 
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.prashant.blog.blogapplicationapi.entities.Category;
 import org.prashant.blog.blogapplicationapi.exceptions.ResourceNotFound;
-import org.prashant.blog.blogapplicationapi.payload.CategoryDT;
-import org.prashant.blog.blogapplicationapi.payload.CategoryDto;
+import org.prashant.blog.blogapplicationapi.payload.CategoryDTO;
 import org.prashant.blog.blogapplicationapi.payload.CategoryPageResponse;
 import org.prashant.blog.blogapplicationapi.repository.CategoryRepository;
-import org.prashant.blog.blogapplicationapi.repository.UserRepository;
 import org.prashant.blog.blogapplicationapi.service.CategoryService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -22,20 +19,18 @@ import java.util.List;
 @Service
 public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
-    private final UserRepository userRepository;
-    private final ModelMapper modelMapper;
 
     @Override
-    public CategoryDT createCategory(CategoryDT categoryDT) {
+    public CategoryDTO createCategory(CategoryDTO categoryDT) {
         Category category = new Category();
         category.setDescription(categoryDT.description());
         category.setTitle(categoryDT.title());
         Category saved_category = this.categoryRepository.save(category);
-        return new CategoryDT(saved_category);
+        return new CategoryDTO(saved_category);
     }
 
     @Override
-    public CategoryDT updateCategoryDescriptionAndTitle(CategoryDT categoryDto) {
+    public CategoryDTO updateCategoryDescriptionAndTitle(CategoryDTO categoryDto) {
         Category category = this.categoryRepository.findById(categoryDto.categoryId())
                 .orElseThrow(()-> new ResourceNotFound("Category", "categoryId", categoryDto.categoryId().toString()));
 
@@ -43,7 +38,7 @@ public class CategoryServiceImpl implements CategoryService {
         category.setTitle(categoryDto.title());
         category.setDescription(categoryDto.description());
         Category updated_category=this.categoryRepository.save(category);
-        return new CategoryDT(updated_category);
+        return new CategoryDTO(updated_category);
     }
 
     @Override
@@ -65,7 +60,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         //get requested users
         Page<Category> page_categories=this.categoryRepository.findAll(pageable);
-        List<CategoryDT> categories = page_categories.getContent().stream().map(CategoryDT::new).toList();
+        List<CategoryDTO> categories = page_categories.getContent().stream().map(CategoryDTO::new).toList();
 
         //return user response
         return new CategoryPageResponse(categories,
@@ -75,13 +70,13 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public List<CategoryDT> getAllCategories() {
-            return this.categoryRepository.findAll().stream().map(CategoryDT::new).toList();
+    public List<CategoryDTO> getAllCategories() {
+            return this.categoryRepository.findAll().stream().map(CategoryDTO::new).toList();
     }
 
     @Override
-    public CategoryDT getCategory(Long categoryId) {
+    public CategoryDTO getCategory(Long categoryId) {
         var category = this.categoryRepository.findById(categoryId).orElseThrow(() -> new ResourceNotFound("Category", "categoryId", categoryId.toString()));
-        return new CategoryDT(category);
+        return new CategoryDTO(category);
     }
 }

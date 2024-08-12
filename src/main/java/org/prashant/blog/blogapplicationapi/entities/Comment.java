@@ -3,12 +3,15 @@ package org.prashant.blog.blogapplicationapi.entities;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 import java.util.Date;
 
 @Entity
-@Data
+@Setter
+@Getter
 @RequiredArgsConstructor
 @Table(name = "comment")
 public class Comment {

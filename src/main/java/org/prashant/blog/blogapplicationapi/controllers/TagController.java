@@ -2,12 +2,10 @@ package org.prashant.blog.blogapplicationapi.controllers;
 
 import lombok.RequiredArgsConstructor;
 import org.prashant.blog.blogapplicationapi.payload.CreateTagRequest;
-import org.prashant.blog.blogapplicationapi.payload.TagDT;
-import org.prashant.blog.blogapplicationapi.payload.TagDto;
+import org.prashant.blog.blogapplicationapi.payload.TagDTO;
 import org.prashant.blog.blogapplicationapi.payload.TagResponse;
 import org.prashant.blog.blogapplicationapi.service.TagService;
 import org.prashant.blog.blogapplicationapi.utils.AppConstant;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,9 +16,9 @@ public class TagController {
     private final TagService tagService;
 
     @PostMapping("/create/")
-    public ResponseEntity<TagDT> createTagHandler(@RequestBody CreateTagRequest createTagRequest){
-        TagDT new_tag = tagService.createTag(createTagRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body(new_tag);
+    public ResponseEntity<?> createTagHandler(@RequestBody CreateTagRequest createTagRequest){
+        TagDTO new_tag = tagService.createTag(createTagRequest);
+        return ResponseEntity.ok(new_tag);
     }
 
     @GetMapping("/")
@@ -32,19 +30,19 @@ public class TagController {
 
     ){
         TagResponse tagResponse = tagService.getAllTags(pageNumber, pageSize,sortBy, sortDir);
-        return new ResponseEntity<>(tagResponse, HttpStatus.OK);
+        return ResponseEntity.ok(tagResponse);
     }
 
     @DeleteMapping("/{tagId}")
-    public ResponseEntity<String> deleteTagHandler(@PathVariable Long tagId){
+    public ResponseEntity<?> deleteTagHandler(@PathVariable Long tagId){
         tagService.deleteTag(tagId);
-        return ResponseEntity.ok("tag deleted successfully with id "+tagId);
+        return ResponseEntity.ok(tagId);
     }
 
     @DeleteMapping("/post/{postId}")
-    public ResponseEntity<String> removeTagsByPostHandler(@PathVariable Long postId){
+    public ResponseEntity<?> removeTagsByPostHandler(@PathVariable Long postId){
         tagService.removeTagsByPost(postId);
-        return ResponseEntity.ok("tags deleted successfully with postId "+postId);
+        return ResponseEntity.ok(postId);
     }
 
 }

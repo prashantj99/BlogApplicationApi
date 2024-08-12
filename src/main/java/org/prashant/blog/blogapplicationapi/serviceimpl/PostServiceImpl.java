@@ -32,7 +32,6 @@ public class PostServiceImpl implements PostService {
     private final UserRepository userRepository;
     private final TagRepository tagRepository;
     private final FileService fileService;
-    private final ActivityService activityService;
     private final ActivityRepository activityRepository;
     private final CommentRepository commentRepository;
 
@@ -41,7 +40,7 @@ public class PostServiceImpl implements PostService {
     private String path;
 
     @Override
-    public PostDT createPost(CreatePostRequest request, Long userId) {
+    public PostDTO createPost(CreatePostRequest request, Long userId) {
         Category category = this.categoryRepository.findById(request.categoryId())
                 .orElseThrow(()->new ResourceNotFound("Category", "categoryId", request.categoryId().toString()));
         User user = this.userRepository.findById(userId)
@@ -74,11 +73,11 @@ public class PostServiceImpl implements PostService {
 
         //save post to database
         Post saved_post = this.postRepository.save(post);
-        return new PostDT(saved_post);
+        return new PostDTO(saved_post);
     }
 
     @Override
-    public PostDT updatePost(PostUpdateRequest postUpdateRequest) {
+    public PostDTO updatePost(PostUpdateRequest postUpdateRequest) {
         Post post = this.postRepository.findById(postUpdateRequest.postId())
                 .orElseThrow(() -> new ResourceNotFound("Post", "postId", postUpdateRequest.postId().toString()));
 
@@ -137,16 +136,16 @@ public class PostServiceImpl implements PostService {
         post.setDraft(postUpdateRequest.draft());
 
         Post updated_post = this.postRepository.save(post);
-        return new PostDT(updated_post);
+        return new PostDTO(updated_post);
     }
 
     @Override
-    public void deletePost(DeletePostRequest deletePostRequest) throws IOException {
-        Post post = this.postRepository.findById(deletePostRequest.postId())
-                .orElseThrow(()-> new ResourceNotFound("Post", "postId", deletePostRequest.postId().toString()));
+    public void deletePost(Long postId, Long userId) throws IOException {
+        Post post = this.postRepository.findById(postId)
+                .orElseThrow(()-> new ResourceNotFound("Post", "postId", postId.toString()));
 
-        User user = userRepository.findById(deletePostRequest.userId())
-                .orElseThrow(() -> new ResourceNotFound("User", "userId", deletePostRequest.userId().toString()));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFound("User", "userId", userId.toString()));
 
         if (!post.getUser().getUserId().equals(user.getUserId())) {
             throw new RuntimeException("You are not authorized to update this post.");
@@ -161,7 +160,7 @@ public class PostServiceImpl implements PostService {
         Sort sort = sortDir.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
         Page<Post> page_post = this.postRepository.findAll(pageable);
-        List<PostDT> posts = page_post.getContent().stream().map(PostDT::new).toList();
+        List<PostDTO> posts = page_post.getContent().stream().map(PostDTO::new).toList();
         return new PostPageResponse(posts,
                     page_post.getNumber(),
                 page_post.getSize(),
@@ -170,10 +169,10 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public PostDT getPostById(Long postId) {
+    public PostDTO getPostById(Long postId) {
         Post post = this.postRepository.findById(postId)
                 .orElseThrow(() -> new ResourceNotFound("Post", "postId", postId.toString()));
-        return new PostDT(post);
+        return new PostDTO(post);
     }
 
     @Override
@@ -186,7 +185,7 @@ public class PostServiceImpl implements PostService {
 
         Page<Post> postsPage = postRepository.findByCategory(category, pageable);
 
-        List<PostDT> posts = postsPage.getContent().stream().map(PostDT::new).toList();
+        List<PostDTO> posts = postsPage.getContent().stream().map(PostDTO::new).toList();
 
         return new PostPageResponse(
                 posts,
@@ -208,7 +207,7 @@ public class PostServiceImpl implements PostService {
 
         Page<Post> postsPage = postRepository.findByUser(user, pageable);
 
-        List<PostDT> posts = postsPage.getContent().stream().map(PostDT::new).toList();
+        List<PostDTO> posts = postsPage.getContent().stream().map(PostDTO::new).toList();
 
         return new PostPageResponse(
                 posts,
@@ -233,7 +232,7 @@ public class PostServiceImpl implements PostService {
         Page<Post> postsPage = postRepository.findByTagsContaining(tag, pageable);
 
         // Convert Page<Post> to a list of PostDto
-        List<PostDT> posts = postsPage.getContent().stream().map(PostDT::new).toList();
+        List<PostDTO> posts = postsPage.getContent().stream().map(PostDTO::new).toList();
 
         // Create and return a PostResponse object containing the paginated post data
         return new PostPageResponse(
@@ -253,7 +252,7 @@ public class PostServiceImpl implements PostService {
 
         Page<Post> postsPage = postRepository.findByTitleContainingIgnoreCaseOrContentContainingIgnoreCase(keyword, pageable);
 
-        List<PostDT> posts = postsPage.getContent().stream().map(PostDT::new).toList();
+        List<PostDTO> posts = postsPage.getContent().stream().map(PostDTO::new).toList();
 
         return new PostPageResponse(
                 posts,
@@ -273,7 +272,7 @@ public class PostServiceImpl implements PostService {
         var user = this.userRepository.findById(userId).orElseThrow(() -> new ResourceNotFound("User", "userId", userId.toString()));
         Page<Post> postsPage = postRepository.findPostByUserAndDraft(user, draft, pageable);
 
-        List<PostDT> posts = postsPage.getContent().stream().map(PostDT::new).toList();
+        List<PostDTO> posts = postsPage.getContent().stream().map(PostDTO::new).toList();
 
         return new PostPageResponse(
                 posts,
@@ -324,7 +323,7 @@ public class PostServiceImpl implements PostService {
         List<Post> posts = postRepository.findAllById(paginatedPostIds);
 
         // Convert to DTOs
-        List<PostDT> postDTs = posts.stream().map(PostDT::new).collect(Collectors.toList());
+        List<PostDTO> postDTs = posts.stream().map(PostDTO::new).collect(Collectors.toList());
 
         // Calculate if there are more pages
         boolean hasMorePages = (end < totalPosts);

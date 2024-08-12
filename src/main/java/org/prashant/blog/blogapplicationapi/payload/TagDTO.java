@@ -2,11 +2,11 @@ package org.prashant.blog.blogapplicationapi.payload;
 
 import org.prashant.blog.blogapplicationapi.entities.Tag;
 
-public record TagDT(
+public record TagDTO(
     Long id,
     String name
 ) {
-    public TagDT(Tag tag){
+    public TagDTO(Tag tag){
         this(tag.getId(), tag.getName());
     }
 }

@@ -5,13 +5,13 @@ import org.prashant.blog.blogapplicationapi.entities.User;
 
 import java.util.List;
 
-public record CategoryDT(
+public record CategoryDTO(
         Long categoryId,
         String title,
         String description,
         List<Long> subscribers
 ) {
-    public CategoryDT(Category category) {
+    public CategoryDTO(Category category) {
         this(
                 category.getCategoryId(),
                 category.getTitle(),

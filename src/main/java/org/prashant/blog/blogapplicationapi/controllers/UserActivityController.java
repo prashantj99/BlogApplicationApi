@@ -2,7 +2,7 @@ package org.prashant.blog.blogapplicationapi.controllers;
 
 import lombok.RequiredArgsConstructor;
 import org.prashant.blog.blogapplicationapi.entities.ActivityType;
-import org.prashant.blog.blogapplicationapi.payload.ActivityDT;
+import org.prashant.blog.blogapplicationapi.payload.ActivityDTO;
 import org.prashant.blog.blogapplicationapi.payload.PostPageResponse;
 import org.prashant.blog.blogapplicationapi.service.ActivityService;
 import org.prashant.blog.blogapplicationapi.utils.AppConstant;
@@ -16,13 +16,13 @@ public class UserActivityController {
     final private ActivityService activityService;
     @PostMapping("/like/post/{postId}")
     public ResponseEntity<?> likePost(@PathVariable Long postId, @RequestParam Long userId) {
-        ActivityDT activity = activityService.performActivityOnPost(userId, postId, ActivityType.LIKE);
+        ActivityDTO activity = activityService.performActivityOnPost(userId, postId, ActivityType.LIKE);
         return ResponseEntity.ok(activity);
     }
 
     @PostMapping("/bookmark/post/{postId}")
     public ResponseEntity<?> bookmarkPost(@PathVariable Long postId, @RequestParam Long userId) {
-        ActivityDT activity = activityService.performActivityOnPost(userId, postId, ActivityType.BOOKMARK);
+        ActivityDTO activity = activityService.performActivityOnPost(userId, postId, ActivityType.BOOKMARK);
         return ResponseEntity.ok(activity);
     }
 

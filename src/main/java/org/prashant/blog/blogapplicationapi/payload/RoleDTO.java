@@ -2,11 +2,11 @@ package org.prashant.blog.blogapplicationapi.payload;
 
 import org.prashant.blog.blogapplicationapi.entities.Role;
 
-public record RoleDT(
+public record RoleDTO(
         Long id,
         String name
 ) {
-    public RoleDT(Role role){
+    public RoleDTO(Role role){
         this(role.getId(), role.getName());
     }
 }

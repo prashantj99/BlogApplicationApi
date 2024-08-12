@@ -21,15 +21,15 @@ public class CategoryController {
 
     @PostMapping("/")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<CategoryDT> createCategory(@RequestBody CategoryDT categoryDto) {
-        CategoryDT new_category = this.categoryService.createCategory(categoryDto);
+    public ResponseEntity<CategoryDTO> createCategory(@RequestBody CategoryDTO categoryDto) {
+        CategoryDTO new_category = this.categoryService.createCategory(categoryDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(new_category);
     }
 
     @PutMapping("/")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<CategoryDT> updateCategoryDiscAndTitle(@RequestBody CategoryDT categoryDto) {
-        CategoryDT updated_category = this.categoryService.updateCategoryDescriptionAndTitle(categoryDto);
+    public ResponseEntity<CategoryDTO> updateCategoryDiscAndTitle(@RequestBody CategoryDTO categoryDto) {
+        CategoryDTO updated_category = this.categoryService.updateCategoryDescriptionAndTitle(categoryDto);
         return ResponseEntity.ok(updated_category);
     }
 
@@ -48,17 +48,16 @@ public class CategoryController {
             @RequestParam(value = "sortDir", defaultValue = AppConstant.DEFAULT_SORT_CRITERIA, required = false) String sortDir
     ){
         CategoryPageResponse categoryPageResponse = this.categoryService.getCategories(pageNumber, pageSize, sortBy, sortDir);
-        return new ResponseEntity<>(categoryPageResponse, HttpStatus.OK);
+        return ResponseEntity.ok(categoryPageResponse);
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<CategoryDT>> getAllCategory(){
+    public ResponseEntity<List<CategoryDTO>> getAllCategory(){
         return ResponseEntity.ok(this.categoryService.getAllCategories());
     }
 
     @GetMapping("/{categoryId}")
     public ResponseEntity<?> getCategoryHandler(@PathVariable Long categoryId){
-        System.out.println("fjaslkdjl");
         return ResponseEntity.ok(this.categoryService.getCategory(categoryId));
     }
 

@@ -1,12 +1,11 @@
 package org.prashant.blog.blogapplicationapi.serviceimpl;
 
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.prashant.blog.blogapplicationapi.entities.Post;
 import org.prashant.blog.blogapplicationapi.entities.Tag;
 import org.prashant.blog.blogapplicationapi.exceptions.ResourceNotFound;
 import org.prashant.blog.blogapplicationapi.payload.CreateTagRequest;
-import org.prashant.blog.blogapplicationapi.payload.TagDT;
+import org.prashant.blog.blogapplicationapi.payload.TagDTO;
 import org.prashant.blog.blogapplicationapi.payload.TagResponse;
 import org.prashant.blog.blogapplicationapi.repository.PostRepository;
 import org.prashant.blog.blogapplicationapi.repository.TagRepository;
@@ -16,7 +15,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.prashant.blog.blogapplicationapi.payload.TagDto;
 
 import java.util.List;
 
@@ -26,14 +24,13 @@ public class TagServiceImpl implements TagService{
 
     private final TagRepository tagRepository;
     private final PostRepository postRepository;
-    private final ModelMapper modelMapper;
 
     @Override
-    public TagDT createTag(CreateTagRequest createTagRequest) {
+    public TagDTO createTag(CreateTagRequest createTagRequest) {
         Tag tag = new Tag();
         tag.setName(createTagRequest.tagName());
         Tag savedTag = tagRepository.save(tag);
-        return new TagDT(savedTag);
+        return new TagDTO(savedTag);
     }
 
     @Override
@@ -41,7 +38,7 @@ public class TagServiceImpl implements TagService{
         Sort sort = sortDir.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
         Page<Tag> page_tags = tagRepository.findAll(pageable);
-        List<TagDT> tags = page_tags.getContent().stream().map(TagDT::new).toList();
+        List<TagDTO> tags = page_tags.getContent().stream().map(TagDTO::new).toList();
         return new TagResponse(tags,
                 page_tags.getNumber(),
                 page_tags.getSize(),

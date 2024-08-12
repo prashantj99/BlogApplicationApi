@@ -25,7 +25,7 @@ public class PostController {
     @PostMapping("/create")
     public ResponseEntity<?> createPost(@RequestBody CreatePostRequest createPostRequest) throws IOException {
         User login_user = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        PostDT created_post = this.postService.createPost(createPostRequest, login_user.getUserId());
+        PostDTO created_post = this.postService.createPost(createPostRequest, login_user.getUserId());
         return ResponseEntity.status(HttpStatus.CREATED).body(created_post);
     }
 
@@ -46,8 +46,8 @@ public class PostController {
     }
 
     @GetMapping("/{postId}")
-    public ResponseEntity<PostDT> getPostById(@PathVariable Long postId){
-        PostDT post = this.postService.getPostById(postId);
+    public ResponseEntity<PostDTO> getPostById(@PathVariable Long postId){
+        PostDTO post = this.postService.getPostById(postId);
         return ResponseEntity.ok(post);
     }
 
@@ -100,9 +100,8 @@ public class PostController {
     }
 
     @DeleteMapping("/{postId}/user/{userId}")
-    public ResponseEntity<ApiResponse> deletePost(@PathVariable Long postId, @PathVariable Long userId) throws IOException {
-        DeletePostRequest deletePostRequest = new DeletePostRequest(postId, userId);
-        this.postService.deletePost(deletePostRequest);
+    public ResponseEntity<?> deletePost(@PathVariable Long postId, @PathVariable Long userId) throws IOException {
+        this.postService.deletePost(postId, userId);
         return new ResponseEntity<>(new ApiResponse("post deleted successfully!!!", true), HttpStatus.OK);
     }
 

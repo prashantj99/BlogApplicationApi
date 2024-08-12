@@ -5,7 +5,7 @@ import org.prashant.blog.blogapplicationapi.entities.Post;
 import java.util.Date;
 import java.util.List;
 
-public record PostDT(
+public record PostDTO(
         Long postId,
         String title,
         String content,
@@ -14,12 +14,12 @@ public record PostDT(
         Boolean draft,
         Date published,
         Date lastUpdated,
-        List<TagDT> tags,
-        CategoryDT category,
-        UserDT user,
-        List<ActivityDT> activities
+        List<TagDTO> tags,
+        CategoryDTO category,
+        UserDTO user,
+        List<ActivityDTO> activities
 ) {
-    public PostDT(Post post) {
+    public PostDTO(Post post) {
         this(post.getPostId(),
                 post.getTitle(),
                 post.getContent(),
@@ -28,10 +28,10 @@ public record PostDT(
                 post.getDraft(),
                 post.getPublished(),
                 post.getLastUpdated(),
-                post.getTags().stream().map(TagDT::new).toList(),
-                new CategoryDT(post.getCategory()),
-                new UserDT(post.getUser()),
-                post.getPostActivities().stream().map(ActivityDT::new).toList()
+                post.getTags().stream().map(TagDTO::new).toList(),
+                new CategoryDTO(post.getCategory()),
+                new UserDTO(post.getUser()),
+                post.getPostActivities().stream().map(ActivityDTO::new).toList()
                 );
         post.getPostActivities().forEach((System.out::println));
     }

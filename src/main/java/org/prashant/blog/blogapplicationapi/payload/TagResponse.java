@@ -3,7 +3,7 @@ package org.prashant.blog.blogapplicationapi.payload;
 import java.util.List;
 
 public record TagResponse(
-        List<TagDT> tags,
+        List<TagDTO> tags,
         Integer pageNumber,
         Integer pageSize,
         Long totalRecords,
