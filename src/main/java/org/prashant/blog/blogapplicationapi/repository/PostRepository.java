@@ -5,10 +5,12 @@ import org.prashant.blog.blogapplicationapi.entities.Post;
 import org.prashant.blog.blogapplicationapi.entities.Tag;
 import org.prashant.blog.blogapplicationapi.entities.User;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,4 +22,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Page<Post> findByTagsContaining(Tag tag, Pageable pageable);
     Page<Post> findPostByUserAndDraft(User user, boolean draft, Pageable pageable);
     Page<Post> findByCategoryIn(List<Category> categories, Pageable pageable);
+    @Query("SELECT p FROM Post p WHERE p.published >= :oneWeekAgo ORDER BY SIZE(p.postActivities) + SIZE(p.comments) DESC")
+    Page<Post> findTrendingPosts(LocalDateTime oneWeekAgo, Pageable pageable);
+    @Query("SELECT p FROM Post p WHERE p.category = :category ORDER BY (SIZE(p.comments) + SIZE(p.postActivities)) DESC")
+    List<Post> findPopularPostsByCategory(Category category, PageRequest pageRequest);
 }

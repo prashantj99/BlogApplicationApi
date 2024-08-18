@@ -4,6 +4,7 @@ import org.prashant.blog.blogapplicationapi.entities.ActivityType;
 import org.prashant.blog.blogapplicationapi.payload.*;
 
 import java.io.IOException;
+import java.util.List;
 
 public interface PostService {
     PostDTO createPost(CreatePostRequest createPostRequest, Long userId) throws IOException;
@@ -20,5 +21,5 @@ public interface PostService {
 
     PostPageResponse getPublishedPostsByUser(Long userId, boolean draft, Integer pageNumber, Integer pageSize, String sortBy, String sortDir);
     PostPageResponse getTrendingPosts(Integer pageNumber, Integer pageSize);
-
+    List<PostDTO> getRecommendedPostsOfCategory(Long categoryId, Integer pageNumber, Integer pageSize);
 }

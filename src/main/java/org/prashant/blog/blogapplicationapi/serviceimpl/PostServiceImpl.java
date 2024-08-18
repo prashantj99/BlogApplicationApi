@@ -32,8 +32,6 @@ public class PostServiceImpl implements PostService {
     private final UserRepository userRepository;
     private final TagRepository tagRepository;
     private final FileService fileService;
-    private final ActivityRepository activityRepository;
-    private final CommentRepository commentRepository;
 
 
     @Value("${project.image}")
@@ -287,51 +285,30 @@ public class PostServiceImpl implements PostService {
     @Override
     public PostPageResponse getTrendingPosts(Integer pageNumber, Integer pageSize) {
         LocalDateTime oneWeekAgo = LocalDateTime.now().minusDays(7);
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
 
-        // Fetch counts of likes and comments
-        List<Object[]> likeCounts = activityRepository.countActivitiesByPostId(oneWeekAgo, ActivityType.LIKE);
-        List<Object[]> commentCounts = commentRepository.countCommentsByPostId(oneWeekAgo);
-
-        // Create maps to hold the counts
-        Map<Long, Long> postLikeCountMap = likeCounts.stream()
-                .collect(Collectors.toMap(arr -> (Long) arr[0], arr -> (Long) arr[1]));
-        Map<Long, Long> postCommentCountMap = commentCounts.stream()
-                .collect(Collectors.toMap(arr -> (Long) arr[0], arr -> (Long) arr[1]));
-
-        // Combine like and comment counts into a popularity map
-        Map<Long, Long> postPopularityMap = new HashMap<>();
-        postLikeCountMap.forEach((postId, likeCount) -> {
-            Long commentCount = postCommentCountMap.getOrDefault(postId, 0L);
-            postPopularityMap.put(postId, likeCount + commentCount);
-        });
-
-        // Sort post IDs by popularity
-        List<Map.Entry<Long, Long>> sortedEntries = postPopularityMap.entrySet().stream()
-                .sorted(Map.Entry.<Long, Long>comparingByValue().reversed()).toList();
-
-        // Calculate pagination indices
-        int totalPosts = sortedEntries.size();
-        int start = Math.min(pageNumber * pageSize, totalPosts);
-        int end = Math.min(start + pageSize, totalPosts);
-
-        // Get IDs for the current page
-        List<Long> paginatedPostIds = sortedEntries.subList(start, end).stream()
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toList());
-
-        // Fetch posts for the current page
-        List<Post> posts = postRepository.findAllById(paginatedPostIds);
+        // Fetch trending posts based on the sum of likes and comments
+        Page<Post> trendingPostsPage = postRepository.findTrendingPosts(oneWeekAgo, pageable);
 
         // Convert to DTOs
-        List<PostDTO> postDTs = posts.stream().map(PostDTO::new).collect(Collectors.toList());
-
-        // Calculate if there are more pages
-        boolean hasMorePages = (end < totalPosts);
+        List<PostDTO> postDTs = trendingPostsPage.getContent().stream().map(PostDTO::new).collect(Collectors.toList());
 
         // Create and return the response
-        return new PostPageResponse(postDTs, pageNumber, pageSize, (long)postDTs.size(),
-                (int) Math.ceil((double) totalPosts / pageSize), hasMorePages);
+        return new PostPageResponse(
+                postDTs,
+                trendingPostsPage.getNumber(),
+                trendingPostsPage.getSize(),
+                trendingPostsPage.getTotalElements(),
+                trendingPostsPage.getTotalPages(),
+                trendingPostsPage.isLast());
     }
 
+    @Override
+    public List<PostDTO> getRecommendedPostsOfCategory(Long categoryId, Integer pageNumber, Integer pageSize) {
+        PageRequest pageRequest = PageRequest.of(pageNumber, pageSize);
+        Category category = this.categoryRepository.findById(categoryId).orElseThrow(()-> new ResourceNotFound("Category", "categoryId", categoryId.toString()));
+        List<Post> posts = postRepository.findPopularPostsByCategory(category, pageRequest);
+        return posts.stream().map(PostDTO::new).toList();
+    }
 
 }

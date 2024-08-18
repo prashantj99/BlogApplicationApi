@@ -70,6 +70,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void subscribeToCategory(Long userId, Long categoryId) {
+        System.out.println("userId"+userId);
+        System.out.println("catId"+categoryId);
         var user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFound("User", "userId", userId.toString()));
         var category = categoryRepository.findById(categoryId)

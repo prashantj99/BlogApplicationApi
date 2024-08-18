@@ -54,19 +54,19 @@ public class CategoryServiceImpl implements CategoryService {
         if(sortDir.equalsIgnoreCase("desc")){
             sort = Sort.by(sortBy).descending();
         }
-
         //create pageable object
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
-
         //get requested users
         Page<Category> page_categories=this.categoryRepository.findAll(pageable);
         List<CategoryDTO> categories = page_categories.getContent().stream().map(CategoryDTO::new).toList();
 
         //return user response
         return new CategoryPageResponse(categories,
-                page_categories.getNumber(), page_categories.getSize(),
+                page_categories.getNumber(),
+                page_categories.getSize(),
                 page_categories.getTotalElements(),
-                page_categories.getTotalPages(), page_categories.isLast());
+                page_categories.getTotalPages(),
+                page_categories.isLast());
     }
 
     @Override
