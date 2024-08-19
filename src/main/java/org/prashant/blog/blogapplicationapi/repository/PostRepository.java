@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,4 +27,12 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Page<Post> findTrendingPosts(LocalDateTime oneWeekAgo, Pageable pageable);
     @Query("SELECT p FROM Post p WHERE p.category = :category ORDER BY (SIZE(p.comments) + SIZE(p.postActivities)) DESC")
     List<Post> findPopularPostsByCategory(Category category, PageRequest pageRequest);
+    @Query("SELECT p.title FROM Post p WHERE p.title LIKE %:prefix% ORDER BY p.title ASC")
+    Page<String> findBlogSuggestions(@Param("prefix") String prefix, Pageable pageable);
+
+    Page<Post> findByTitleContainingIgnoreCase(String title, Pageable pageable);
+
+    @Query("SELECT p FROM Post p JOIN p.tags t WHERE t.name LIKE %:keyword%")
+    Page<Post> findPostsByTagNameContaining(String keyword, Pageable pageable);
+
 }

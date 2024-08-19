@@ -1,4 +1,9 @@
 package org.prashant.blog.blogapplicationapi.payload;
 
-public record SearchSuggestionRequest(String searchType, String keyword) {
+public record SearchRequest(
+        String type,
+        String keyword,
+        Integer pageNumber,
+        Integer pageSize
+) {
 }
