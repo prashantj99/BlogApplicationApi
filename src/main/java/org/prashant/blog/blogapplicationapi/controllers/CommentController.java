@@ -8,20 +8,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/comment")
+@RequestMapping("/api/v1/comments")
 @RequiredArgsConstructor
 public class CommentController {
 
     private final CommentService commentService;
 
-    @PostMapping("/create")
+    @PostMapping("/add")
     public ResponseEntity<?> createCommentHandler(@RequestBody CreateCommentRequest createCommentRequest) {
         CommentDTO createdComment = commentService.createComment(createCommentRequest);
-        createdComment.user().accounts().forEach(AccountDTO::accountId);
         return ResponseEntity.ok(createdComment);
     }
 
-    @PutMapping("/update")
+    @PutMapping("/edit")
     public ResponseEntity<?> updateCommentHandler(@RequestBody UpdateCommentRequest updateCommentRequest) {
         CommentDTO updatedComment = commentService.updateComment(updateCommentRequest);
         return ResponseEntity.ok(updatedComment);
