@@ -8,9 +8,7 @@ import org.prashant.blog.blogapplicationapi.exceptions.ResourceNotFound;
 import org.prashant.blog.blogapplicationapi.exceptions.UnAuthorizedOperationExcpetion;
 import org.prashant.blog.blogapplicationapi.payload.*;
 import org.prashant.blog.blogapplicationapi.repository.*;
-import org.prashant.blog.blogapplicationapi.service.ActivityService;
-import org.prashant.blog.blogapplicationapi.service.FileService;
-import org.prashant.blog.blogapplicationapi.service.PostService;
+import org.prashant.blog.blogapplicationapi.service.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -32,6 +30,9 @@ public class PostServiceImpl implements PostService {
     private final UserRepository userRepository;
     private final TagRepository tagRepository;
     private final FileService fileService;
+    private final NotificationService notificationService;
+    private final UserService userService;
+
 
 
     @Value("${project.image}")
@@ -41,7 +42,7 @@ public class PostServiceImpl implements PostService {
     public PostDTO createPost(CreatePostRequest request, Long userId) {
         Category category = this.categoryRepository.findById(request.categoryId())
                 .orElseThrow(()->new ResourceNotFound("Category", "categoryId", request.categoryId().toString()));
-        User user = this.userRepository.findById(userId)
+        User user = userService.getLoggedInUser()
                 .orElseThrow(()->new ResourceNotFound("User", "userId", userId.toString()));
 
         Post post = new Post();
@@ -71,6 +72,16 @@ public class PostServiceImpl implements PostService {
 
         //save post to database
         Post saved_post = this.postRepository.save(post);
+
+        //create a notification of new post
+        category.getSubscribers().forEach((subscriber)->{
+            Notification notification = new Notification();
+            notification.setUser(subscriber);
+            notification.setType(NotificationType.NEW_POST);
+            notification.setContent(saved_post.getPostId().toString());
+            notificationService.saveNotification(user, notification);
+        });
+
         return new PostDTO(saved_post);
     }
 

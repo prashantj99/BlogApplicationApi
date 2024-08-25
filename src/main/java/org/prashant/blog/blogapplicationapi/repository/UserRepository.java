@@ -15,5 +15,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("SELECT u.name FROM User u WHERE u.name LIKE %:prefix% ORDER BY u.name ASC")
     Page<String> findUserSuggestions(@Param("prefix") String prefix, Pageable pageable);
     Page<User> findAllByNameOrAbout(String name, String about, Pageable pageable);
-
+    @Query("SELECT u.followers FROM User u WHERE u.userId = :userId")
+    Optional<List<User>> findFollowersByUserId(@Param("userId") Long userId);
 }

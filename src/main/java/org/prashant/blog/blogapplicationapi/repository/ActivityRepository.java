@@ -17,7 +17,6 @@ import java.util.Optional;
 public interface ActivityRepository extends JpaRepository<Activity, Long> {
     Page<Activity> findByUserAndActivityType(User user, ActivityType activityType, Pageable pageable);
     Optional<Activity> findByUserAndPostAndActivityType(User user, Post post, ActivityType activityType);
-
     @Query("SELECT a.post.postId, COUNT(a.activityId) FROM Activity a WHERE a.activityDate > :startDate AND a.activityType = :activityType GROUP BY a.post.postId")
     List<Object[]> countActivitiesByPostId(@Param("startDate") LocalDateTime startDate, @Param("activityType") ActivityType activityType);
 }

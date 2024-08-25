@@ -1,31 +1,30 @@
 package org.prashant.blog.blogapplicationapi.serviceimpl;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
-import org.prashant.blog.blogapplicationapi.entities.*;
-import org.prashant.blog.blogapplicationapi.payload.*;
+import org.prashant.blog.blogapplicationapi.entities.Account;
+import org.prashant.blog.blogapplicationapi.entities.Category;
+import org.prashant.blog.blogapplicationapi.entities.Post;
+import org.prashant.blog.blogapplicationapi.entities.User;
 import org.prashant.blog.blogapplicationapi.exceptions.ResourceNotFound;
+import org.prashant.blog.blogapplicationapi.payload.PostDTO;
+import org.prashant.blog.blogapplicationapi.payload.PostPageResponse;
+import org.prashant.blog.blogapplicationapi.payload.UpdateUserRequest;
+import org.prashant.blog.blogapplicationapi.payload.UserDTO;
 import org.prashant.blog.blogapplicationapi.repository.CategoryRepository;
 import org.prashant.blog.blogapplicationapi.repository.PostRepository;
 import org.prashant.blog.blogapplicationapi.repository.UserRepository;
-import org.prashant.blog.blogapplicationapi.service.CategoryService;
 import org.prashant.blog.blogapplicationapi.service.UserService;
-import org.prashant.blog.blogapplicationapi.utils.AppConstant;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -107,11 +106,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public Optional<User> getLoggedInUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.getPrincipal() instanceof User user) {
-            System.out.println(user);
-            return Optional.of(user);
+            var dbuser = userRepository.findById(user.getUserId()).orElseThrow(()-> new RuntimeException("Internal Error Server"));
+            return Optional.of(dbuser);
         }
         return null;
     }

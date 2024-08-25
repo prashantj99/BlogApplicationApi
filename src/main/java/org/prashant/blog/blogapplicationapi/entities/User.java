@@ -70,6 +70,7 @@ public class User implements UserDetails {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
+    @JsonManagedReference
     private Set<Role> roles;
 
     @OneToOne(mappedBy = "user")
@@ -78,6 +79,22 @@ public class User implements UserDetails {
 
     @OneToOne(mappedBy = "user")
     private ForgotPassword forgotPassword;
+
+
+    @ManyToMany
+    @JoinTable(
+            name = "user_followers",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "follower_id")
+    )
+    private Set<User> followedUsers = new HashSet<>();
+
+    @ManyToMany(mappedBy = "followedUsers")
+    private Set<User> followers = new HashSet<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List<Notification> notifications = new ArrayList<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
