@@ -36,18 +36,6 @@ public class UserController {
         userService.subscribeToCategory(request.userId(), request.categoryId());
         return ResponseEntity.ok("");
     }
-
-    @GetMapping("/{userId}/subscribed-posts")
-    public ResponseEntity<PostPageResponse> getSubscribedPostsHandler(
-            @PathVariable Long userId,
-            @RequestParam(value ="pageNumber", defaultValue = AppConstant.PAGE_NUMBER, required = false) Integer pageNumber,
-            @RequestParam(value ="pageSize", defaultValue = AppConstant.PAGE_SIZE, required = false) Integer pageSize,
-            @RequestParam(value = "sortBy", defaultValue = AppConstant.DEFAULT_POST_SORT_FIELD, required = false) String sortBy,
-            @RequestParam(value = "sortDir", defaultValue = AppConstant.DEFAULT_SORT_CRITERIA, required = false) String sortDir) {
-        var posts = userService.getPostsFromSubscribedCategories(userId, pageNumber, pageSize, sortBy, sortDir);
-        return ResponseEntity.ok(posts);
-    }
-
 }
 
 

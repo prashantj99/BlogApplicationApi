@@ -29,7 +29,7 @@ public class Category {
 
     @ManyToMany
     @JoinTable(
-            name = "user_category",
+            name = "category_subscribers",
             joinColumns = @JoinColumn(name = "category_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )

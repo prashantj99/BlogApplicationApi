@@ -37,7 +37,9 @@ public class SecurityConfiguration {
 
     public final AuthenticationProvider authenticationProvider;
     public final AuthFilterService authFilterService;
-    private final OAuthAuthenticationHandler oAuthAuthenticationHandler;
+
+    @Value("${FRONTEND_URL}")
+    public String frontendURL;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -48,6 +50,7 @@ public class SecurityConfiguration {
                                 "/api/v1/auth/**",
                                 "/api/v1/forgotpassword/**",
                                 "/api/v1/category/all",
+                                "/api/v1/category/page",
                                 "/api/v1/file/name/**",
                                 "/login/oauth2/**"
                         )
@@ -64,7 +67,7 @@ public class SecurityConfiguration {
     @Bean
     public CorsConfigurationSource corsConfigurationSource(){
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
+        configuration.setAllowedOrigins(List.of(frontendURL));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowCredentials(true);
         configuration.addAllowedHeader("*");

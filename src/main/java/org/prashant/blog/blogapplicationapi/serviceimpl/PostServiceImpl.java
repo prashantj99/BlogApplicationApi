@@ -322,4 +322,34 @@ public class PostServiceImpl implements PostService {
         return posts.stream().map(PostDTO::new).toList();
     }
 
+    @Override
+    public void incrementPostViews(Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new ResourceNotFound("Post", "id", postId.toString()));
+        post.setViews(post.getViews() + 1);
+        postRepository.save(post);
+    }
+
+    @Override
+    public PostPageResponse getPostsFromSubscribedCategories(Long userId, Integer pageNumber, Integer pageSize, String sortBy, String sortDir) {
+        var user = userRepository.findById(userId).orElseThrow(()-> new ResourceNotFound("User", "userId", userId.toString()));
+        //get user subscribed categories
+        List<Category> subscribedCategories = user.getSubscribedCategories();
+        subscribedCategories.forEach(category -> System.out.println(category.getTitle()));
+
+        //make page request
+        Sort sort = Sort.by(sortDir.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, sortBy);
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+        Page<Post> postsPage = postRepository.findByCategoryIn(subscribedCategories, pageable);
+        List<PostDTO> posts = postsPage.getContent().stream().map(PostDTO::new).toList();
+        return new PostPageResponse(
+                posts,
+                postsPage.getNumber(),
+                postsPage.getSize(),
+                postsPage.getTotalElements(),
+                postsPage.getTotalPages(),
+                postsPage.isLast()
+        );
+    }
+
 }

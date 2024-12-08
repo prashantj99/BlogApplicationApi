@@ -35,3 +35,6 @@ build/
 ### record files
 *.properties
 image/
+
+.env
+Dockerfile

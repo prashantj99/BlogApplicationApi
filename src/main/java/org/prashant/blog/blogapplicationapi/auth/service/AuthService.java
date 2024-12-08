@@ -86,7 +86,6 @@ public class AuthService {
                 .maxAge(AppConstant.cookieExpiry)
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-
         //auth response
         return new AuthResponse(accessToken, refreshToken.getRefreshToken(),user);
     }

@@ -2,11 +2,14 @@ package org.prashant.blog.blogapplicationapi.serviceimpl;
 
 import lombok.RequiredArgsConstructor;
 import org.prashant.blog.blogapplicationapi.entities.Category;
+import org.prashant.blog.blogapplicationapi.entities.User;
 import org.prashant.blog.blogapplicationapi.exceptions.ResourceNotFound;
+import org.prashant.blog.blogapplicationapi.exceptions.UnAuthorizedOperationExcpetion;
 import org.prashant.blog.blogapplicationapi.payload.CategoryDTO;
 import org.prashant.blog.blogapplicationapi.payload.CategoryPageResponse;
 import org.prashant.blog.blogapplicationapi.repository.CategoryRepository;
 import org.prashant.blog.blogapplicationapi.service.CategoryService;
+import org.prashant.blog.blogapplicationapi.service.UserService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +22,7 @@ import java.util.List;
 @Service
 public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
+    private final UserService userService;
 
     @Override
     public CategoryDTO createCategory(CategoryDTO categoryDT) {
@@ -78,5 +82,21 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryDTO getCategory(Long categoryId) {
         var category = this.categoryRepository.findById(categoryId).orElseThrow(() -> new ResourceNotFound("Category", "categoryId", categoryId.toString()));
         return new CategoryDTO(category);
+    }
+
+    @Override
+    public void followCategory(Long categoryId) {
+        User user = userService.getLoggedInUser().orElseThrow(()-> new UnAuthorizedOperationExcpetion("Unauthorized"));
+        var category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ResourceNotFound("Category", "categoryId", categoryId.toString()));
+        category.getSubscribers().add(user);
+    }
+
+    @Override
+    public void unfollowCategory(Long categoryId) {
+        User user = userService.getLoggedInUser().orElseThrow(()-> new UnAuthorizedOperationExcpetion("Unauthorized"));
+        var category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ResourceNotFound("Category", "categoryId", categoryId.toString()));
+        category.getSubscribers().remove(user);
     }
 }

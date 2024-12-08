@@ -74,5 +74,8 @@ public class ActivityServiceImpl implements ActivityService {
                 page_activities.getTotalPages(), page_activities.isLast());
     }
 
-
+    @Override
+    public long countActivities(Long postId, ActivityType activityType) {
+        return activityRepository.countByPostIdAndActivityType(postId, activityType);
+    }
 }

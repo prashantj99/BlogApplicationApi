@@ -30,7 +30,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
-    private final PostRepository postRepository;
     private final CategoryRepository categoryRepository;
     @Override
     public UserDTO getUser(Long userId) {
@@ -69,8 +68,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void subscribeToCategory(Long userId, Long categoryId) {
-        System.out.println("userId"+userId);
-        System.out.println("catId"+categoryId);
         var user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFound("User", "userId", userId.toString()));
         var category = categoryRepository.findById(categoryId)
@@ -78,31 +75,12 @@ public class UserServiceImpl implements UserService {
 
         if (user.getSubscribedCategories().contains(category)) {
             user.getSubscribedCategories().remove(category);
+            category.getSubscribers().remove(user);
         } else {
             user.getSubscribedCategories().add(category);
+            category.getSubscribers().add(user);
         }
         userRepository.save(user);
-    }
-
-    @Override
-    public PostPageResponse getPostsFromSubscribedCategories(Long userId, Integer pageNumber, Integer pageSize, String sortBy, String sortDir) {
-        var user = userRepository.findById(userId).orElseThrow(()-> new ResourceNotFound("User", "userId", userId.toString()));
-        //get user subscribed categories
-        List<Category> subscribedCategories = user.getSubscribedCategories();
-        subscribedCategories.forEach(category -> System.out.println(category.getTitle()));
-        //make page request
-        Sort sort = Sort.by(sortDir.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, sortBy);
-        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
-        Page<Post> postsPage = postRepository.findByCategoryIn(subscribedCategories, pageable);
-        List<PostDTO> posts = postsPage.getContent().stream().map(PostDTO::new).toList();
-        return new PostPageResponse(
-                posts,
-                postsPage.getNumber(),
-                postsPage.getSize(),
-                postsPage.getTotalElements(),
-                postsPage.getTotalPages(),
-                postsPage.isLast()
-        );
     }
 
     @Override

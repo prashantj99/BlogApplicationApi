@@ -62,10 +62,13 @@ public class Post {
     @ManyToMany
     @JoinTable(
             name = "post_tag",
-            joinColumns = @JoinColumn(name = "post_id"),
-            inverseJoinColumns = @JoinColumn(name = "tag_id")
+            joinColumns = @JoinColumn(name = "tag_id"),
+            inverseJoinColumns = @JoinColumn(name = "post_id")
     )
     private List<Tag> tags;
+
+    @Column(name = "views", nullable = false)
+    private int views = 0; // Default value is 0
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     @JsonManagedReference

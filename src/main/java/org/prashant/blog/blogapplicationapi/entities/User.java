@@ -48,12 +48,7 @@ public class User implements UserDetails {
     @JsonManagedReference
     private List<Activity> activities;
 
-    @ManyToMany
-    @JoinTable(
-            name = "user_category",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "category_id")
-    )
+    @ManyToMany(mappedBy = "subscribers")
     private List<Category> subscribedCategories;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)

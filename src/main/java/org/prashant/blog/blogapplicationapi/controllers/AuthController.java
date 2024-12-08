@@ -33,6 +33,7 @@ public class AuthController {
 
     @GetMapping("/refresh_token")
     public ResponseEntity<AuthResponse> refreshToken(@CookieValue String refreshToken){
+        System.out.println("RF : "+refreshToken);
         RefreshToken verified_refreshToken = this.refreshTokenService.verifyRefreshToken(refreshToken);
         User user = verified_refreshToken.getUser();
         String accessToken = jwtService.generateToken(user);

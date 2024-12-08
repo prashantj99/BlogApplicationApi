@@ -40,6 +40,18 @@ public class CategoryController {
         return ResponseEntity.ok(new ApiResponse("category deleted successfully!!!", true));
     }
 
+    @PostMapping("/follow/{categoryId}")
+    public ResponseEntity<?> followCategoryHandler(@PathVariable Long categoryId ){
+        this.categoryService.followCategory(categoryId);
+        return ResponseEntity.ok("success");
+    }
+
+    @DeleteMapping("/follow/{categoryId}")
+    public ResponseEntity<?> unfollowCategoryHandler(@PathVariable Long categoryId ){
+        this.categoryService.unfollowCategory(categoryId);
+        return ResponseEntity.ok("success");
+    }
+
     @GetMapping("/page")
     public ResponseEntity<CategoryPageResponse> getCategoryByPage(
             @RequestParam(value ="pageNumber", defaultValue = AppConstant.PAGE_NUMBER, required = false) Integer pageNumber,

@@ -18,7 +18,6 @@ import java.util.List;
 public class BlogApplicationApiApplication {
 
     private static final Logger logger = LoggerFactory.getLogger(BlogApplicationApiApplication.class);
-
     private final RoleRepository roleRepository;
 
     @Autowired
@@ -30,12 +29,7 @@ public class BlogApplicationApiApplication {
         SpringApplication.run(BlogApplicationApiApplication.class, args);
     }
 
-    @Bean
-    public ModelMapper modelMapper() {
-        return new ModelMapper();
-    }
-
-//    @PostConstruct
+//    @Bean
 //    public void initRoles() {
 //        try {
 //            roleRepository.saveAll(List.of(buildRoles()));
@@ -48,11 +42,11 @@ public class BlogApplicationApiApplication {
 //    private Role[] buildRoles() {
 //        Role adminRole = new Role();
 //        adminRole.setId(AppConstant.ADMIN_USER);
-//        adminRole.setName(AppConstant.ADMIN);
+//        adminRole.setName("ADMIN");
 //
 //        Role userRole = new Role();
 //        userRole.setId(AppConstant.NORMAL_USER);
-//        userRole.setName(AppConstant.NORMAL);
+//        userRole.setName("NORMAL");
 //
 //        return new Role[]{adminRole, userRole};
 //    }

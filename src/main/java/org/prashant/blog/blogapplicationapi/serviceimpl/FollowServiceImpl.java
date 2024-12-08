@@ -48,7 +48,7 @@ public class FollowServiceImpl implements FollowService {
 
         // Create and save a notification of follow user
         Notification notification = new Notification();
-        notification.setUser(loggedInUser);
+        notification.setUser(userToFollow);
         notification.setType(NotificationType.FOLLOW);
         notification.setContent("User " + loggedInUser.getName() + " followed you.");
         notificationService.saveNotification(userToFollow, notification);

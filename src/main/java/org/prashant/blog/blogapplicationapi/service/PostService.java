@@ -22,4 +22,6 @@ public interface PostService {
     PostPageResponse getPublishedPostsByUser(Long userId, boolean draft, Integer pageNumber, Integer pageSize, String sortBy, String sortDir);
     PostPageResponse getTrendingPosts(Integer pageNumber, Integer pageSize);
     List<PostDTO> getRecommendedPostsOfCategory(Long categoryId, Integer pageNumber, Integer pageSize);
+    public void incrementPostViews(Long postId);
+    PostPageResponse getPostsFromSubscribedCategories(Long userId, Integer pageNumber, Integer pageSize, String sortBy, String sortDir);
 }

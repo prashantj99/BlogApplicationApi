@@ -13,4 +13,7 @@ public interface CategoryService {
     List<CategoryDTO> getAllCategories();
     CategoryDTO getCategory(Long categoryId);
 
+    void followCategory(Long categoryId);
+    void unfollowCategory(Long categoryId);
+
 }

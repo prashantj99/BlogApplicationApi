@@ -9,7 +9,5 @@ public interface UserService {
     UserDTO getUser(Long userId);
     UserDTO updateUser(UpdateUserRequest request);
     void subscribeToCategory(Long userId, Long categoryId);
-    PostPageResponse getPostsFromSubscribedCategories(Long userId, Integer pageNumber, Integer pageSize, String sortBy, String sortDir);
-
     Optional<User> getLoggedInUser();
 }
